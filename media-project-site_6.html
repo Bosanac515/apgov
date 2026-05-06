@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Media & Democracy | AP Gov Block 1</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:#111;color:#F0F0F0;overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:300;background:rgba(10,10,10,.95);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:52px;border-bottom:2px solid #E03535}
+.nb{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:.15em;color:#E03535}
+nav ul{display:flex;list-style:none;gap:2rem}
+nav a{color:#C8C8C8;text-decoration:none;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;transition:color .2s}
+nav a:hover{color:#fff}
+
+/* HERO */
+.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;padding:7rem 0 0;position:relative;overflow:hidden;background:#0D0D0D}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(224,53,53,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(224,53,53,.06) 1px,transparent 1px);background-size:55px 55px}
+.hero-left{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:center;padding:4rem 3rem 4rem 4rem}
+.hero-right{position:relative;overflow:hidden}
+.hero-img{width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(.45) saturate(.6)}
+.hero-img-overlay{position:absolute;inset:0;background:linear-gradient(to right,#0D0D0D 5%,transparent 50%)}
+.hero-kicker{font-size:.68rem;letter-spacing:.28em;text-transform:uppercase;color:#E03535;margin-bottom:1.25rem}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,8vw,7rem);line-height:.92;letter-spacing:.03em;color:#FFFFFF;margin-bottom:1.5rem}
+.hero h1 span{color:#E03535}
+.hero-desc{font-size:.95rem;color:#C8C8C8;font-weight:300;line-height:1.8;max-width:480px;margin-bottom:2.5rem;border-left:2px solid #E03535;padding-left:1rem}
+.names{display:flex;flex-wrap:wrap;gap:.6rem}
+.name-pill{background:transparent;border:1px solid #333;padding:.35rem .9rem;font-size:.72rem;color:#E8E8E8;letter-spacing:.05em}
+.name-pill.red{border-color:#E03535;color:#E03535}
+.hero-bottom{background:#E03535;padding:1rem 4rem;display:flex;gap:3rem;align-items:center;position:relative;z-index:2}
+.hb-item{text-align:center}
+.hb-num{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#fff;line-height:1}
+.hb-label{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;margin-top:.15rem}
+
+/* TICKER */
+.ticker{background:#0D0D0D;border-top:1px solid #1E1E1E;border-bottom:1px solid #1E1E1E;overflow:hidden;white-space:nowrap;padding:.55rem 0}
+.ticker-inner{display:inline-block;animation:tick 35s linear infinite}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.tick-text{display:inline-block;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:#A0A0A0;padding:0 2.5rem}
+.tick-dot{color:#E03535;margin:0 .5rem}
+
+/* SECTIONS */
+.sec{padding:6rem 0;border-top:1px solid #1E1E1E}
+.sec.alt{background:#0D0D0D}
+.sec-inner{max-width:1200px;margin:0 auto;padding:0 3rem}
+.sec-head{display:flex;align-items:flex-start;gap:1rem;margin-bottom:3rem}
+.sec-n{font-family:'Bebas Neue',sans-serif;font-size:6rem;color:#E03535;line-height:.85;opacity:.15}
+.sec-titles .stag{font-size:.62rem;letter-spacing:.25em;text-transform:uppercase;color:#E03535;margin-bottom:.3rem}
+.sec-titles h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,5vw,3.8rem);letter-spacing:.04em;color:#FFFFFF;line-height:1}
+.sec-titles p{font-size:.85rem;color:#C0C0C0;margin-top:.4rem;font-weight:300}
+
+/* STAT STRIP */
+.stat-strip{display:grid;gap:1px;background:#1E1E1E;margin-bottom:1px}
+.s3{grid-template-columns:repeat(3,1fr)}
+.s4{grid-template-columns:repeat(4,1fr)}
+.stat-box{background:#111;padding:2rem 1.5rem;text-align:center}
+.alt .stat-box{background:#0D0D0D}
+.snum{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,6vw,5rem);color:#E03535;line-height:1;margin-bottom:.4rem}
+.slabel{font-size:.78rem;color:#D0D0D0;line-height:1.5;max-width:150px;margin:0 auto}
+.ssrc{font-size:.57rem;color:#333;margin-top:.4rem}
+
+/* CHART AREAS */
+.chart-grid{display:grid;gap:1px;background:#1E1E1E}
+.cg2{grid-template-columns:1fr 1fr}
+.cg3{grid-template-columns:2fr 1fr}
+.chart-pane{background:#111;padding:2.5rem;position:relative}
+.alt .chart-pane{background:#0D0D0D}
+.chart-pane.dark{background:#0A0A0A}
+.ctag{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#A0A0A0;margin-bottom:1.25rem;display:block}
+.chart-wrap{position:relative;width:100%}
+.ch300{height:300px}
+.ch260{height:260px}
+.ch200{height:200px}
+
+/* IMAGE PANELS */
+.img-panel{position:relative;overflow:hidden;min-height:280px}
+.img-panel img{width:100%;height:100%;object-fit:cover;filter:brightness(.45) saturate(.5);transition:filter .4s}
+.img-panel:hover img{filter:brightness(.55) saturate(.6)}
+.img-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:1.75rem}
+.img-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.06em;color:#FFFFFF;margin-bottom:.35rem}
+.img-caption{font-size:.72rem;color:#D0D0D0;line-height:1.6;max-width:260px}
+.img-src{font-size:.58rem;color:#D0D0D0AAA;margin-top:.5rem}
+
+/* PARTISAN VISUAL */
+.partisan-list{display:flex;flex-direction:column;gap:1.1rem}
+.pb-name{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:#B8B8B8;margin-bottom:.35rem}
+.pb-track{height:40px;display:flex;background:#0D0D0D}
+.pb-d{background:#1A3E7A;display:flex;align-items:center;justify-content:flex-end;padding-right:.65rem}
+.pb-r{background:#7A1A1A;display:flex;align-items:center;padding-left:.65rem}
+.pb-d span,.pb-r span{font-size:.7rem;color:#fff;font-weight:600;white-space:nowrap}
+
+/* BUBBLE DIAGRAM */
+.bubble-wrap{display:flex;align-items:center;justify-content:center;gap:1.5rem;padding:2rem 0;flex-wrap:wrap}
+.bub-col{text-align:center}
+.bub-main{width:130px;height:130px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.08em;line-height:1.3;text-align:center}
+.bub-main.bl{background:#1A3E7A;color:#C8D8EE}
+.bub-main.rl{background:#7A1A1A;color:#EEC8C8}
+.bub-subs{display:flex;gap:.4rem;justify-content:center;margin-top:.5rem}
+.bub-sm{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.57rem;font-weight:700}
+.bub-sm.bl{border:1.5px solid #2A5EA0;color:#6699CC;background:rgba(26,62,122,.12)}
+.bub-sm.rl{border:1.5px solid #992222;color:#CC7777;background:rgba(122,26,26,.12)}
+.bub-cap{font-size:.62rem;color:#D0D0D0AAA;margin-top:.5rem;line-height:1.5;max-width:130px;margin-left:auto;margin-right:auto}
+.bub-mid{display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.bub-line{width:1px;height:60px;background:linear-gradient(to bottom,transparent,#333,transparent)}
+.bub-tag{font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:#333;text-align:center;line-height:1.6}
+
+/* IMPACT STRIP */
+.impact-strip{background:#E03535;padding:1.1rem 2.5rem;display:flex;align-items:center;gap:1.5rem}
+.impact-strip .ilabel{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:#fff;white-space:nowrap}
+.impact-strip p{font-size:.9rem;color:#fff;font-weight:300;line-height:1.5}
+
+/* ICON STRIP */
+.icon-strip{display:grid;gap:1px;background:#1E1E1E;grid-template-columns:repeat(3,1fr)}
+.icon-box{background:#111;padding:2rem 1.5rem;text-align:center}
+.alt .icon-box{background:#0D0D0D}
+.icon-em{font-size:2rem;display:block;margin-bottom:.75rem}
+.icon-title{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.06em;color:#FFFFFF;margin-bottom:.4rem}
+.icon-desc{font-size:.75rem;color:#B8B8B8;line-height:1.65}
+
+/* QUOTE */
+.quote-box{border-left:2px solid #E03535;padding:1rem 1.25rem}
+.quote-box p{font-size:.9rem;color:#C8C8C8;font-style:italic;line-height:1.75;font-weight:300}
+.quote-box cite{display:block;font-size:.6rem;color:#A0A0A0;margin-top:.5rem;font-style:normal;letter-spacing:.06em;text-transform:uppercase}
+
+/* WORKS CITED */
+.works{background:#080808;padding:5rem 3rem;border-top:1px solid #1A1A1A}
+.works h3{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:.06em;color:#FFF;margin-bottom:.25rem}
+.works-sub{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#777;margin-bottom:2.5rem}
+.clist{list-style:none;max-width:900px}
+.clist li{display:flex;gap:.85rem;padding:.9rem 0;border-bottom:1px solid #111;font-size:.75rem;color:#999;line-height:1.75}
+.cn{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;color:#E03535;flex-shrink:0;width:1.4rem}
+.clist em{font-style:italic;color:#A0A0A0}
+.clist a{color:#2A4A6A;text-decoration:none}
+
+footer{text-align:center;padding:1.75rem;font-size:.6rem;color:#1E1E1E;letter-spacing:.12em;text-transform:uppercase;border-top:1px solid #1A1A1A}
+
+sup.c{font-size:.58rem;color:#E03535;font-weight:700;vertical-align:super;line-height:0;font-family:'Inter',sans-serif}
+
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr;min-height:auto}
+  .hero-right{height:280px}
+  .hero-bottom{flex-wrap:wrap;gap:1.5rem;padding:1rem 2rem}
+  .cg2,.cg3,.s3,.s4,.icon-strip{grid-template-columns:1fr}
+  nav ul{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="nb">Media & Democracy</span>
+  <ul>
+    <li><a href="#f1">Media Choices</a></li>
+    <li><a href="#f2">Ideology</a></li>
+    <li><a href="#f3">Echo Chambers</a></li>
+    <li><a href="#sources">Sources</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-left">
+    <p class="hero-kicker">AP Government &nbsp;·&nbsp; Block 1 &nbsp;·&nbsp; Mr. Savage</p>
+    <h1>How<br>Media<br><span>Shapes</span><br>Democracy</h1>
+    <p class="hero-desc">How increasingly diverse media choices influence political institutions and behavior.</p>
+    <div class="names">
+      <span class="name-pill red">Aden Muhamedagic</span>
+      <span class="name-pill red">Bruce Giles</span>
+      <span class="name-pill red">Ken Allen</span>
+    </div>
+  </div>
+  <div class="hero-right">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/US_Capitol_west_side.JPG/1280px-US_Capitol_west_side.JPG" alt="US Capitol Building" class="hero-img" onerror="this.parentElement.style.background='#0D0D0D'">
+    <div class="hero-img-overlay"></div>
+  </div>
+  <div class="hero-bottom" style="grid-column:1/-1">
+    <div class="hb-item"><div class="hb-num">3</div><div class="hb-label">Key Factors</div></div>
+    <div class="hb-item"><div class="hb-num">9</div><div class="hb-label">Credible Sources</div></div>
+    <div class="hb-item"><div class="hb-num">86%</div><div class="hb-label">Americans — Digital News</div></div>
+    <div class="hb-item"><div class="hb-num">32%</div><div class="hb-label">Trust Mass Media</div></div>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="tick-text">Increased Media Choices</span><span class="tick-dot">◆</span>
+    <span class="tick-text">Ideologically Oriented Programming</span><span class="tick-dot">◆</span>
+    <span class="tick-text">Consumer-Driven Media & Emerging Technologies</span><span class="tick-dot">◆</span>
+    <span class="tick-text">Democratic Debate</span><span class="tick-dot">◆</span>
+    <span class="tick-text">Political Knowledge</span><span class="tick-dot">◆</span>
+    <span class="tick-text">Increased Media Choices</span><span class="tick-dot">◆</span>
+    <span class="tick-text">Ideologically Oriented Programming</span><span class="tick-dot">◆</span>
+    <span class="tick-text">Consumer-Driven Media & Emerging Technologies</span><span class="tick-dot">◆</span>
+    <span class="tick-text">Democratic Debate</span><span class="tick-dot">◆</span>
+    <span class="tick-text">Political Knowledge</span><span class="tick-dot">◆</span>
+  </div>
+</div>
+
+
+<!-- ══════════════ FACTOR 1 ══════════════ -->
+<div class="sec" id="f1">
+  <div class="sec-inner">
+    <div class="sec-head">
+      <span class="sec-n">01</span>
+      <div class="sec-titles">
+        <p class="stag">Factor One</p>
+        <h2>Increased Media Choices</h2>
+        <p>More platforms, less shared reality</p>
+      </div>
+    </div>
+
+    <!-- Stat strip -->
+    <div class="stat-strip s4" style="margin-bottom:1px">
+      <div class="stat-box">
+        <div class="snum">86%</div>
+        <div class="slabel">get news from a digital device</div>
+        <div class="ssrc">Pew Research, 2023 <sup class="c">1</sup></div>
+      </div>
+      <div class="stat-box">
+        <div class="snum">4+</div>
+        <div class="slabel">avg. platforms used for news</div>
+        <div class="ssrc">Pew Research, 2023 <sup class="c">1</sup></div>
+      </div>
+      <div class="stat-box">
+        <div class="snum">32%</div>
+        <div class="slabel">trust in mass media (near record low)</div>
+        <div class="ssrc">Gallup, 2023 <sup class="c">4</sup></div>
+      </div>
+      <div class="stat-box">
+        <div class="snum">22%</div>
+        <div class="slabel">still read print news regularly</div>
+        <div class="ssrc">Pew Research, 2023 <sup class="c">1</sup></div>
+      </div>
+    </div>
+
+    <!-- Chart + image -->
+    <div class="chart-grid cg3" style="margin-bottom:1px">
+      <div class="chart-pane">
+        <span class="ctag">Where Americans Get News (% of adults) — Pew Research Center, 2023 <sup class="c">1</sup></span>
+        <div class="chart-wrap ch300"><canvas id="chart1"></canvas></div>
+      </div>
+      <div class="img-panel">
+        <img src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=900&q=80"
+          alt="Modern TV newsroom" loading="lazy" style="width:100%;height:100%;object-fit:cover;filter:brightness(.4) saturate(.5)" onerror="this.style.display='none'">
+        <div class="img-overlay">
+          <div class="img-title">The Modern Newsroom</div>
+          <div class="img-caption">TV, podcasts, social media, and newsletters all compete for your attention — and your political views.</div>
+          <div class="img-src">Unsplash (Free Use)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="impact-strip">
+      <span class="ilabel">Key Impact</span>
+      <p>When everyone picks their own source, Americans lose the shared facts needed for democratic debate. <sup class="c">3</sup></p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════ FACTOR 2 ══════════════ -->
+<div class="sec alt" id="f2">
+  <div class="sec-inner">
+    <div class="sec-head">
+      <span class="sec-n">02</span>
+      <div class="sec-titles">
+        <p class="stag">Factor Two</p>
+        <h2>Ideologically Oriented Programming</h2>
+        <p>Cable news audiences are almost entirely partisan</p>
+      </div>
+    </div>
+
+    <!-- Chart + partisan bars -->
+    <div class="chart-grid cg2" style="margin-bottom:1px">
+      <div class="chart-pane dark">
+        <span class="ctag">Cable News Audience Party Composition — Pew Research Center, 2020 <sup class="c">5</sup></span>
+        <div class="chart-wrap ch260"><canvas id="chart2"></canvas></div>
+      </div>
+      <div class="chart-pane dark" style="display:flex;flex-direction:column;justify-content:center;gap:1.5rem">
+        <div class="stat-box" style="background:#111;text-align:center">
+          <div class="snum">3×</div>
+          <div class="slabel">more partisan content on cable, 2020 vs. 2000</div>
+          <div class="ssrc">Levendusky & Malhotra, 2016 <sup class="c">6</sup></div>
+        </div>
+        <div class="quote-box">
+          <p>"Partisan media increases polarization and reduces willingness to compromise."</p>
+          <cite>— Levendusky & Malhotra, Political Communication <sup class="c">6</sup></cite>
+        </div>
+      </div>
+    </div>
+
+    <!-- Image + icon strip -->
+    <div class="chart-grid cg2" style="margin-bottom:1px">
+      <div class="img-panel" style="min-height:220px">
+        <img src="https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=900&q=80"
+          alt="Political press conference" loading="lazy" style="width:100%;height:100%;object-fit:cover;filter:brightness(.4) saturate(.4);min-height:220px" onerror="this.style.background='#0A0A0A';this.style.minHeight='220px'">
+        <div class="img-overlay">
+          <div class="img-title">Politics & The Press</div>
+          <div class="img-caption">Politicians know which networks their base watches — and craft messages accordingly.</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#1E1E1E">
+        <div class="icon-box" style="background:#0A0A0A">
+          <span class="icon-em">📺</span>
+          <div class="icon-title">Outrage = Ratings</div>
+          <div class="icon-desc">Networks profit from conflict. Partisan framing keeps viewers watching longer. <sup class="c">7</sup></div>
+        </div>
+        <div class="icon-box" style="background:#0A0A0A">
+          <span class="icon-em">🧠</span>
+          <div class="icon-title">More Extreme Views</div>
+          <div class="icon-desc">Viewers of partisan media gradually hold more radical positions. <sup class="c">6</sup></div>
+        </div>
+        <div class="icon-box" style="background:#0A0A0A">
+          <span class="icon-em">🗳️</span>
+          <div class="icon-title">Less Compromise</div>
+          <div class="icon-desc">One-sided viewing reduces willingness to engage with opposing views. <sup class="c">6</sup></div>
+        </div>
+        <div class="icon-box" style="background:#0A0A0A">
+          <span class="icon-em">📉</span>
+          <div class="icon-title">Shared Facts Decline</div>
+          <div class="icon-desc">Partisan viewers understand policy facts very differently from each other. <sup class="c">5</sup></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="impact-strip">
+      <span class="ilabel">Key Impact</span>
+      <p>Partisan viewers hold different understandings of basic policy facts — making productive debate nearly impossible. <sup class="c">5</sup></p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════ FACTOR 3 ══════════════ -->
+<div class="sec" id="f3">
+  <div class="sec-inner">
+    <div class="sec-head">
+      <span class="sec-n">03</span>
+      <div class="sec-titles">
+        <p class="stag">Factor Three</p>
+        <h2>Consumer-Driven Media &amp; Emerging Tech</h2>
+        <p>Algorithms trap users inside information bubbles</p>
+      </div>
+    </div>
+
+    <!-- Stat strip -->
+    <div class="stat-strip s3" style="margin-bottom:1px">
+      <div class="stat-box">
+        <div class="snum">50%</div>
+        <div class="slabel">of Americans get news from social media</div>
+        <div class="ssrc">Pew Research, 2023 <sup class="c">1</sup></div>
+      </div>
+      <div class="stat-box">
+        <div class="snum">−23%</div>
+        <div class="slabel">political knowledge vs. traditional news readers</div>
+        <div class="ssrc">Mitchell et al., Pew 2020 <sup class="c">2</sup></div>
+      </div>
+      <div class="stat-box">
+        <div class="snum">6×</div>
+        <div class="slabel">more likely to share false news than accurate news</div>
+        <div class="ssrc">Horwitz & Seetharaman, WSJ <sup class="c">9</sup></div>
+      </div>
+    </div>
+
+    <!-- Trust chart + bubble diagram -->
+    <div class="chart-grid cg2" style="margin-bottom:1px">
+      <div class="chart-pane">
+        <span class="ctag">American Trust in Mass Media Over Time (%) — Gallup <sup class="c">4</sup></span>
+        <div class="chart-wrap ch300"><canvas id="chart3"></canvas></div>
+      </div>
+      <div class="chart-pane" style="display:flex;flex-direction:column;justify-content:center">
+        <span class="ctag" style="text-align:center">The Filter Bubble Effect — Pariser, 2011 <sup class="c">8</sup></span>
+        <div class="bubble-wrap">
+          <div class="bub-col">
+            <div class="bub-main bl">Liberal<br>Bubble</div>
+            <div class="bub-subs">
+              <div class="bub-sm bl">MSNBC</div>
+              <div class="bub-sm bl">NPR</div>
+            </div>
+            <p class="bub-cap">Conservative views appear fringe or extreme</p>
+          </div>
+          <div class="bub-mid">
+            <div class="bub-line"></div>
+            <div class="bub-tag">Algorithm<br>🤖<br>Barrier</div>
+            <div class="bub-line"></div>
+          </div>
+          <div class="bub-col">
+            <div class="bub-main rl">Conservative<br>Bubble</div>
+            <div class="bub-subs">
+              <div class="bub-sm rl">Fox</div>
+              <div class="bub-sm rl">OAN</div>
+            </div>
+            <p class="bub-cap">Liberal views appear fringe or extreme</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Social media image + knowledge chart -->
+    <div class="chart-grid cg2" style="margin-bottom:1px">
+      <div class="img-panel" style="min-height:240px">
+        <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=900&q=80"
+          alt="Social network visualization" loading="lazy" style="width:100%;height:100%;object-fit:cover;filter:brightness(.5) saturate(.4)" onerror="this.style.background='#0A0A0A'">
+        <div class="img-overlay">
+          <div class="img-title">The Algorithm Decides</div>
+          <div class="img-caption">Facebook's own research confirmed its algorithm amplified divisive content because it drove more engagement — even when misleading.</div>
+          <div class="img-src">Unsplash (Free Use) · WSJ Investigation <sup class="c">9</sup></div>
+        </div>
+      </div>
+      <div class="chart-pane">
+        <span class="ctag">Political Knowledge: Social Media vs. Traditional News — Pew Research, 2020 <sup class="c">2</sup></span>
+        <div class="chart-wrap ch260"><canvas id="chart4"></canvas></div>
+      </div>
+    </div>
+
+    <div class="impact-strip">
+      <span class="ilabel">Key Impact</span>
+      <p>Citizens in separate information worlds disagree on basic facts — productive democratic debate collapses. <sup class="c">7</sup></p>
+    </div>
+  </div>
+</div>
+
+
+<!-- WORKS CITED -->
+<div class="works" id="sources">
+  <div style="max-width:960px;margin:0 auto">
+    <h3>Works Cited</h3>
+    <p class="works-sub">MLA 9th Edition &nbsp;·&nbsp; Block 1 — Mr. Savage &nbsp;·&nbsp; Muhamedagic · Giles · Allen</p>
+    <ol class="clist">
+      <li><span class="cn">1</span><span>Pew Research Center. "News Platform Fact Sheet." <em>Journalism Project</em>, 15 Nov. 2023, <a href="https://www.pewresearch.org/journalism/fact-sheet/news-platform-fact-sheet/" target="_blank">www.pewresearch.org/journalism/fact-sheet/news-platform-fact-sheet/</a>.</span></li>
+      <li><span class="cn">2</span><span>Mitchell, Amy, et al. "Americans Who Mainly Get Their News on Social Media Are Less Engaged, Less Knowledgeable." <em>Pew Research Center</em>, 30 July 2020, <a href="https://www.pewresearch.org/journalism/2020/07/30/americans-who-mainly-get-their-news-on-social-media-are-less-engaged-less-knowledgeable/" target="_blank">www.pewresearch.org/journalism/2020/07/30</a>.</span></li>
+      <li><span class="cn">3</span><span>Prior, Markus. <em>Post-Broadcast Democracy</em>. Cambridge University Press, 2007.</span></li>
+      <li><span class="cn">4</span><span>Newport, Frank. "Americans' Trust in Media Remains Near Record Low." <em>Gallup</em>, 19 Oct. 2023, <a href="https://news.gallup.com/poll/512861/americans-trust-media-remains-near-record-low.aspx" target="_blank">news.gallup.com/poll/512861</a>.</span></li>
+      <li><span class="cn">5</span><span>Jurkowitz, Mark, et al. "U.S. Media Polarization and the 2020 Election." <em>Pew Research Center</em>, 24 Jan. 2020, <a href="https://www.pewresearch.org/journalism/2020/01/24/u-s-media-polarization-and-the-2020-election-a-nation-divided/" target="_blank">www.pewresearch.org/journalism/2020/01/24</a>.</span></li>
+      <li><span class="cn">6</span><span>Levendusky, Matthew, and Neil Malhotra. "Does Media Coverage of Partisan Polarization Affect Political Attitudes?" <em>Political Communication</em>, vol. 33, no. 2, 2016, pp. 283–301.</span></li>
+      <li><span class="cn">7</span><span>Sunstein, Cass R. <em>Republic: Divided Democracy in the Age of Social Media</em>. Princeton University Press, 2017.</span></li>
+      <li><span class="cn">8</span><span>Pariser, Eli. <em>The Filter Bubble: What the Internet Is Hiding from You</em>. Penguin Press, 2011.</span></li>
+      <li><span class="cn">9</span><span>Horwitz, Jeff, and Deepa Seetharaman. "Facebook Executives Shut Down Efforts to Make the Site Less Divisive." <em>The Wall Street Journal</em>, 26 May 2020, <a href="https://www.wsj.com/articles/facebook-knows-it-encourages-division-top-executives-nixed-solutions-11590507499" target="_blank">www.wsj.com/articles/facebook-knows-it-encourages-division</a>.</span></li>
+      <li><span class="cn">10</span><span>Unsplash. Various photographs used under the Unsplash Free License. <a href="https://unsplash.com" target="_blank">unsplash.com</a>.</span></li>
+    </ol>
+  </div>
+</div>
+
+<footer>Block 1 &nbsp;·&nbsp; AP Government &nbsp;·&nbsp; Mr. Savage &nbsp;·&nbsp; Aden Muhamedagic &nbsp;·&nbsp; Bruce Giles &nbsp;·&nbsp; Ken Allen</footer>
+
+<!-- CHARTS -->
+<script>
+Chart.defaults.color = '#888';
+Chart.defaults.borderColor = '#1E1E1E';
+Chart.defaults.font.family = "'Inter', sans-serif";
+
+/* Chart 1 – Platform Usage Horizontal Bar */
+new Chart(document.getElementById('chart1'), {
+  type: 'bar',
+  data: {
+    labels: ['Online / Digital', 'Television', 'Social Media', 'Radio', 'Print'],
+    datasets: [{
+      data: [86, 73, 50, 42, 22],
+      backgroundColor: ['#E03535','#C02020','#882222','#601818','#3A1010'],
+      borderWidth: 0,
+      borderRadius: 2
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: { label: ctx => ' ' + ctx.raw + '% of U.S. adults' }
+      }
+    },
+    scales: {
+      x: {
+        max: 100,
+        grid: { color: '#1A1A1A' },
+        ticks: { callback: v => v + '%', color: '#BBBBBB', font: { size: 11 } }
+      },
+      y: {
+        grid: { display: false },
+        ticks: { color: '#E0E0E0', font: { size: 12 } }
+      }
+    }
+  }
+});
+
+/* Chart 2 – Partisan Composition Stacked Bar */
+new Chart(document.getElementById('chart2'), {
+  type: 'bar',
+  data: {
+    labels: ['Fox News', 'Local TV', 'CNN', 'MSNBC'],
+    datasets: [
+      {
+        label: 'Democrat / Lean Dem',
+        data: [6, 44, 70, 95],
+        backgroundColor: '#1A3E7A',
+        borderWidth: 0,
+        borderRadius: 0
+      },
+      {
+        label: 'Republican / Lean Rep',
+        data: [94, 56, 30, 5],
+        backgroundColor: '#7A1A1A',
+        borderWidth: 0,
+        borderRadius: 0
+      }
+    ]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { color: '#CCCCCC', font: { size: 11 }, padding: 16, boxWidth: 12 }
+      },
+      tooltip: {
+        callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + ctx.raw + '%' }
+      }
+    },
+    scales: {
+      x: {
+        stacked: true,
+        max: 100,
+        grid: { color: '#1A1A1A' },
+        ticks: { callback: v => v + '%', color: '#AAAAAA', font: { size: 11 } }
+      },
+      y: {
+        stacked: true,
+        grid: { display: false },
+        ticks: { color: '#E0E0E0', font: { size: 12 } }
+      }
+    }
+  }
+});
+
+/* Chart 3 – Trust in Media Over Time Line */
+new Chart(document.getElementById('chart3'), {
+  type: 'line',
+  data: {
+    labels: ['1972','1976','1980','1985','1990','1995','2000','2005','2010','2015','2020','2023'],
+    datasets: [{
+      label: '% Trust Mass Media',
+      data: [68, 72, 51, 55, 56, 49, 55, 50, 43, 40, 40, 32],
+      borderColor: '#E03535',
+      backgroundColor: 'rgba(224,53,53,.08)',
+      borderWidth: 2.5,
+      pointBackgroundColor: '#E03535',
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      fill: true,
+      tension: .35
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: { label: ctx => ' ' + ctx.raw + '% trust in media' }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: '#1A1A1A' },
+        ticks: { color: '#BBBBBB', font: { size: 10 }, maxRotation: 0 }
+      },
+      y: {
+        min: 20, max: 80,
+        grid: { color: '#1A1A1A' },
+        ticks: { callback: v => v + '%', color: '#BBBBBB', font: { size: 11 } }
+      }
+    }
+  }
+});
+
+/* Chart 4 – Knowledge Score Comparison */
+new Chart(document.getElementById('chart4'), {
+  type: 'bar',
+  data: {
+    labels: ['Current Events', 'Govt. Leaders', 'Policy Details', 'Election Info'],
+    datasets: [
+      {
+        label: 'Traditional News Readers',
+        data: [74, 68, 61, 72],
+        backgroundColor: '#E03535',
+        borderWidth: 0,
+        borderRadius: 3
+      },
+      {
+        label: 'Social Media News Consumers',
+        data: [51, 45, 38, 53],
+        backgroundColor: '#333',
+        borderWidth: 0,
+        borderRadius: 3
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { color: '#CCCCCC', font: { size: 11 }, padding: 14, boxWidth: 12 }
+      },
+      tooltip: {
+        callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + ctx.raw + '%' }
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { color: '#D0D0D0', font: { size: 10 } }
+      },
+      y: {
+        max: 100,
+        grid: { color: '#1A1A1A' },
+        ticks: { callback: v => v + '%', color: '#BBBBBB', font: { size: 11 } }
+      }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
