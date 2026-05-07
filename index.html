@@ -23,7 +23,7 @@ nav a:hover{color:#fff}
 .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(224,53,53,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(224,53,53,.06) 1px,transparent 1px);background-size:55px 55px}
 .hero-left{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:center;padding:4rem 3rem 4rem 4rem}
 .hero-right{position:relative;overflow:hidden}
-.hero-img{width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(.45) saturate(.6)}
+.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(.45) saturate(.6)}
 .hero-img-overlay{position:absolute;inset:0;background:linear-gradient(to right,#0D0D0D 5%,transparent 50%)}
 .hero-kicker{font-size:.68rem;letter-spacing:.28em;text-transform:uppercase;color:#E03535;margin-bottom:1.25rem}
 .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,8vw,7rem);line-height:.92;letter-spacing:.03em;color:#FFFFFF;margin-bottom:1.5rem}
@@ -79,12 +79,12 @@ nav a:hover{color:#fff}
 
 /* IMAGE PANELS */
 .img-panel{position:relative;overflow:hidden;min-height:280px}
-.img-panel img{width:100%;height:100%;object-fit:cover;filter:brightness(.45) saturate(.5);transition:filter .4s}
+.img-panel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(.45) saturate(.5);transition:filter .4s}
 .img-panel:hover img{filter:brightness(.55) saturate(.6)}
-.img-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:1.75rem}
+.img-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:1.75rem;z-index:1}
 .img-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.06em;color:#FFFFFF;margin-bottom:.35rem}
 .img-caption{font-size:.72rem;color:#D0D0D0;line-height:1.6;max-width:260px}
-.img-src{font-size:.58rem;color:#D0D0D0AAA;margin-top:.5rem}
+.img-src{font-size:.58rem;color:#D0D0D0;margin-top:.5rem}
 
 /* PARTISAN VISUAL */
 .partisan-list{display:flex;flex-direction:column;gap:1.1rem}
@@ -141,12 +141,74 @@ footer{text-align:center;padding:1.75rem;font-size:.6rem;color:#1E1E1E;letter-sp
 
 sup.c{font-size:.58rem;color:#E03535;font-weight:700;vertical-align:super;line-height:0;font-family:'Inter',sans-serif}
 
+/* ── TABLET ── */
 @media(max-width:900px){
-  .hero{grid-template-columns:1fr;min-height:auto}
-  .hero-right{height:280px}
-  .hero-bottom{flex-wrap:wrap;gap:1.5rem;padding:1rem 2rem}
-  .cg2,.cg3,.s3,.s4,.icon-strip{grid-template-columns:1fr}
   nav ul{display:none}
+  .hero{grid-template-columns:1fr;min-height:100svh}
+  .hero-left{padding:5rem 1.75rem 2rem}
+  .hero-right{height:300px;order:-1}
+  .hero-img-overlay{background:linear-gradient(to bottom,transparent 40%,#0D0D0D 95%)}
+  .hero-bottom{grid-column:1/-1;flex-wrap:wrap;gap:0;padding:0}
+  .hb-item{flex:1 1 50%;padding:.9rem 1rem;border-right:1px solid rgba(255,255,255,.15);border-bottom:1px solid rgba(255,255,255,.15)}
+  .hb-item:nth-child(even){border-right:none}
+  .hb-item:nth-child(n+3){border-bottom:none}
+  .sec{padding:3.5rem 0}
+  .sec-inner{padding:0 1.25rem}
+  .sec-head{margin-bottom:2rem}
+  .sec-n{font-size:4rem}
+  .cg2,.cg3{grid-template-columns:1fr}
+  .s3{grid-template-columns:1fr 1fr 1fr}
+  .s4{grid-template-columns:1fr 1fr}
+  .icon-strip{grid-template-columns:1fr 1fr}
+  .ch300,.ch260,.ch200{height:220px}
+  .chart-pane{padding:1.5rem 1.25rem}
+  .img-panel{min-height:260px}
+  .impact-strip{flex-direction:column;align-items:flex-start;gap:.5rem;padding:1rem 1.25rem}
+  .impact-strip .ilabel{white-space:normal}
+  .works{padding:3rem 1.25rem}
+  .hero-desc{font-size:.88rem}
+  .bub-main{width:110px;height:110px;font-size:.88rem}
+  .bubble-wrap{gap:1rem;padding:1.25rem 0}
+}
+
+/* ── PHONE ── */
+@media(max-width:480px){
+  .hero-left{padding:4.5rem 1.25rem 1.5rem}
+  .hero h1{font-size:clamp(3rem,16vw,4.5rem)}
+  .hero-desc{font-size:.82rem}
+  .name-pill{font-size:.65rem;padding:.3rem .7rem}
+  .hb-num{font-size:1.6rem}
+  .hb-label{font-size:.55rem}
+  .sec-inner{padding:0 1rem}
+  .s3{grid-template-columns:1fr}
+  .s4{grid-template-columns:1fr 1fr}
+  .stat-box{padding:1.5rem 1rem}
+  .snum{font-size:clamp(2.5rem,12vw,4rem)}
+  .slabel{font-size:.72rem}
+  .ssrc{font-size:.55rem}
+  .icon-strip{grid-template-columns:1fr}
+  .icon-box{padding:1.5rem 1rem}
+  .ch300,.ch260,.ch200{height:190px}
+  .chart-pane{padding:1.25rem 1rem}
+  .ctag{font-size:.55rem;letter-spacing:.12em}
+  .sec-titles h2{font-size:clamp(1.8rem,9vw,2.8rem)}
+  .sec-n{font-size:3rem}
+  .img-panel{min-height:220px}
+  .img-title{font-size:1.3rem}
+  .img-caption{font-size:.68rem}
+  .quote-box p{font-size:.82rem}
+  .impact-strip p{font-size:.82rem}
+  .bub-main{width:95px;height:95px;font-size:.8rem}
+  .bub-sm{width:42px;height:42px;font-size:.52rem}
+  .bubble-wrap{gap:.75rem}
+  .works{padding:2.5rem 1rem}
+  .works h3{font-size:2rem}
+  .clist li{font-size:.7rem}
+  footer{font-size:.55rem;padding:1.25rem}
+  .ticker-inner{animation-duration:20s}
+  .tick-text{font-size:.6rem;padding:0 1.5rem}
+  .pb-d span,.pb-r span{font-size:.62rem}
+  .pb-track{height:36px}
 }
 </style>
 </head>
@@ -177,7 +239,7 @@ sup.c{font-size:.58rem;color:#E03535;font-weight:700;vertical-align:super;line-h
     </div>
   </div>
   <div class="hero-right">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/US_Capitol_west_side.JPG/1280px-US_Capitol_west_side.JPG" alt="US Capitol Building" class="hero-img" onerror="this.parentElement.style.background='#0D0D0D'">
+    <img src="./images/capitol.JPG" alt="US Capitol Building" class="hero-img" onerror="this.parentElement.style.background='#0D0D0D'">
     <div class="hero-img-overlay"></div>
   </div>
   <div class="hero-bottom" style="grid-column:1/-1">
@@ -248,7 +310,7 @@ sup.c{font-size:.58rem;color:#E03535;font-weight:700;vertical-align:super;line-h
         <div class="chart-wrap ch300"><canvas id="chart1"></canvas></div>
       </div>
       <div class="img-panel">
-        <img src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=900&q=80"
+        <img src="./images/newsroom.jpeg"
           alt="Modern TV newsroom" loading="lazy" style="width:100%;height:100%;object-fit:cover;filter:brightness(.4) saturate(.5)" onerror="this.style.display='none'">
         <div class="img-overlay">
           <div class="img-title">The Modern Newsroom</div>
@@ -299,8 +361,8 @@ sup.c{font-size:.58rem;color:#E03535;font-weight:700;vertical-align:super;line-h
 
     <!-- Image + icon strip -->
     <div class="chart-grid cg2" style="margin-bottom:1px">
-      <div class="img-panel" style="min-height:220px">
-        <img src="https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=900&q=80"
+      <div class="img-panel" style="min-height:260px">
+        <img src="./images/politics.jpg"
           alt="Political press conference" loading="lazy" style="width:100%;height:100%;object-fit:cover;filter:brightness(.4) saturate(.4);min-height:220px" onerror="this.style.background='#0A0A0A';this.style.minHeight='220px'">
         <div class="img-overlay">
           <div class="img-title">Politics & The Press</div>
@@ -406,8 +468,8 @@ sup.c{font-size:.58rem;color:#E03535;font-weight:700;vertical-align:super;line-h
 
     <!-- Social media image + knowledge chart -->
     <div class="chart-grid cg2" style="margin-bottom:1px">
-      <div class="img-panel" style="min-height:240px">
-        <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=900&q=80"
+      <div class="img-panel" style="min-height:260px">
+        <img src="./images/social.jpeg"
           alt="Social network visualization" loading="lazy" style="width:100%;height:100%;object-fit:cover;filter:brightness(.5) saturate(.4)" onerror="this.style.background='#0A0A0A'">
         <div class="img-overlay">
           <div class="img-title">The Algorithm Decides</div>
@@ -444,7 +506,7 @@ sup.c{font-size:.58rem;color:#E03535;font-weight:700;vertical-align:super;line-h
       <li><span class="cn">7</span><span>Sunstein, Cass R. <em>Republic: Divided Democracy in the Age of Social Media</em>. Princeton University Press, 2017.</span></li>
       <li><span class="cn">8</span><span>Pariser, Eli. <em>The Filter Bubble: What the Internet Is Hiding from You</em>. Penguin Press, 2011.</span></li>
       <li><span class="cn">9</span><span>Horwitz, Jeff, and Deepa Seetharaman. "Facebook Executives Shut Down Efforts to Make the Site Less Divisive." <em>The Wall Street Journal</em>, 26 May 2020, <a href="https://www.wsj.com/articles/facebook-knows-it-encourages-division-top-executives-nixed-solutions-11590507499" target="_blank">www.wsj.com/articles/facebook-knows-it-encourages-division</a>.</span></li>
-      <li><span class="cn">10</span><span>Unsplash. Various photographs used under the Unsplash Free License. <a href="https://unsplash.com" target="_blank">unsplash.com</a>.</span></li>
+      <li><span class="cn">10</span><span>Pexels. Various photographs used under the Pexels Free License. <a href="https://www.pexels.com" target="_blank">www.pexels.com</a>.</span></li>
     </ol>
   </div>
 </div>
