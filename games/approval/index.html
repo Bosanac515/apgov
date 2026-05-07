@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Approval Rating Survival | AP Gov</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#080C18;overflow:hidden}
+body{font-family:'Inter',sans-serif;color:#F0F0F0;display:flex;flex-direction:column}
+nav{background:#050810;border-bottom:2px solid #E03535;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;height:48px;flex-shrink:0;z-index:50}
+.nb{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.15em;color:#E03535;text-decoration:none}
+.bk{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:#777;text-decoration:none;border:1px solid #222;padding:.3rem .75rem}
+.bk:hover{color:#fff;border-color:#E03535}
+#q-clock{transition:color .3s}
+#pause-btn{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:#555;border:1px solid #222;padding:.3rem .75rem;cursor:pointer;background:none;display:none;transition:all .2s}
+#pause-btn:hover{color:#fff;border-color:#E03535}
+.gw{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(224,53,53,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(224,53,53,.04) 1px,transparent 1px);background-size:50px 50px;pointer-events:none}
+.sc{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;z-index:30;background:rgba(5,8,16,.92)}
+.sc.on{display:flex}
+.ST{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,8vw,5.5rem);line-height:.9;letter-spacing:.04em;color:#fff;text-align:center;margin-bottom:.6rem}
+.ST span{color:#E03535}
+.ssub{font-size:.82rem;color:#666;font-weight:300;line-height:1.75;max-width:420px;text-align:center;margin:0 auto 1.75rem}
+.ig-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#1E1E1E;width:100%;max-width:460px;margin-bottom:1.75rem}
+.ig{background:#111;padding:1rem;text-align:center}
+.ig-n{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:#E03535;line-height:1}
+.ig-l{font-size:.58rem;color:#444;text-transform:uppercase;letter-spacing:.1em;margin-top:.2rem}
+.pbtn{background:#E03535;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.12em;padding:.75rem 3.5rem;border:none;cursor:pointer;transition:all .2s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%)}
+.pbtn:hover{background:#FF4444;transform:scale(1.03)}
+.pbtn.ol{background:transparent;border:1px solid #333;color:#777;clip-path:none;margin-top:.5rem;font-size:1.1rem;padding:.65rem 2rem}
+.pbtn.ol:hover{border-color:#E03535;color:#fff}
+
+/* GAME */
+#game-area{display:none;flex:1;flex-direction:column;overflow:hidden}
+.appr-wrap{padding:.75rem 1.25rem .5rem;flex-shrink:0;background:rgba(8,12,24,.95);border-bottom:1px solid #111}
+.appr-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.4rem}
+.appr-label{font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;color:#444}
+.appr-status{font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.appr-pct{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;letter-spacing:.04em;line-height:1;transition:color .4s}
+.appr-bar-track{height:12px;background:#0D0D1A;border:1px solid #1A1A2A;overflow:hidden;position:relative}
+.appr-bar-fill{height:100%;transition:width .5s ease,background .5s;position:relative}
+.appr-bar-fill::after{content:'';position:absolute;top:0;right:0;bottom:0;width:40px;background:linear-gradient(to right,transparent,rgba(255,255,255,.12))}
+.appr-bar-fill.crit{animation:crits .55s infinite}
+@keyframes crits{0%,100%{opacity:1}50%{opacity:.55}}
+.appr-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:.3rem}
+.surv-timer{font-family:'Bebas Neue',sans-serif;font-size:.9rem;color:#444;letter-spacing:.08em}
+.drain-label{font-size:.55rem;color:#333;letter-spacing:.08em;text-transform:uppercase}
+
+/* Hud row */
+.hud-row{display:flex;align-items:center;justify-content:space-between;padding:.35rem 1.25rem;background:rgba(8,12,24,.85);border-bottom:1px solid #0D0D18;flex-shrink:0}
+.hv{text-align:center}
+.hv-n{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#E03535;letter-spacing:.06em;line-height:1}
+.hv-l{font-size:.5rem;color:#2A2A2A;text-transform:uppercase;letter-spacing:.1em;margin-top:.1rem}
+.q-tbar{flex:1;height:3px;background:#111;margin:0 1rem;overflow:hidden}
+.q-tfill{height:100%;background:#E03535;transition:width .08s linear}
+
+/* Content */
+.content{flex:1;display:flex;align-items:center;justify-content:center;padding:1rem;overflow:hidden;position:relative}
+
+/* QUESTION CARD */
+.q-card{background:#0D1222;border:1px solid #1A2035;padding:1.5rem;width:100%;max-width:680px}
+.q-cat{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:#E03535;margin-bottom:.55rem}
+.q-text{font-size:clamp(.92rem,2.4vw,1.08rem);color:#FFFFFF;font-weight:600;line-height:1.55;margin-bottom:1rem}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-bottom:.75rem}
+.ob{outline:none;background:#0F1525;border:1px solid #1A1E30;padding:.8rem 1rem;color:#CCC;font-size:.8rem;font-family:'Inter',sans-serif;font-weight:500;cursor:pointer;text-align:left;transition:all .18s;line-height:1.4;position:relative}
+.ob:hover:not(:disabled){background:#151E38;border-color:#E03535;color:#fff}
+.ob:disabled{cursor:default}
+.ob.good{background:#0A1E0A;border-color:#3A9A3A;color:#7ADF7A}
+.ob.bad{background:#1E0A0A;border-color:#9A3A3A;color:#DF7A7A}
+.ob.reveal{background:#0A1E0A;border-color:#3A9A3A;color:#7ADF7A;opacity:.6}
+.ol{font-family:'Bebas Neue',sans-serif;font-size:.88rem;color:#333;margin-right:.5rem}
+.ob.good .ol,.ob.reveal .ol{color:#3A9A3A}
+.ob.bad .ol{color:#9A3A3A}
+.feedback{padding:.8rem 1rem;font-size:.78rem;line-height:1.6;display:none;font-weight:300;border-left:3px solid;margin-top:.5rem}
+.feedback.good{background:#0A1E0A;border-color:#3A9A3A;color:#AADDAA;display:block}
+.feedback.bad{background:#1E0A0A;border-color:#9A3A3A;color:#DDAAAA;display:block}
+
+/* POWERUPS */
+.powerup-row{display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap}
+.pu-btn{background:#111;border:1px solid #2A2A2A;padding:.45rem .85rem;font-size:.7rem;cursor:pointer;color:#AAA;font-family:'Inter',sans-serif;transition:all .18s;white-space:nowrap}
+.pu-btn:hover{border-color:#E03535;color:#fff}
+.pu-btn.spin{border-color:#9944AA;color:#CC77EE}
+.pu-btn.spin:hover{background:#1A0A2A}
+.pu-btn.rally{border-color:#3A9A3A;color:#77CC77}
+.pu-btn.rally:hover{background:#0A1A0A}
+.pu-btn.freeze{border-color:#3355AA;color:#7799DD}
+.pu-btn.freeze:hover{background:#0A0F1E}
+
+/* APPROVAL FLASH */
+.appr-flash{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Bebas Neue',sans-serif;font-size:3.5rem;pointer-events:none;opacity:0;z-index:10;text-shadow:0 0 30px currentColor}
+
+/* EVENT OVERLAY */
+#ev-ov{position:absolute;inset:0;z-index:40;display:none;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;background:rgba(5,8,16,.97)}
+#ev-ov.show{display:flex}
+.ev-ticker{background:#E03535;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.15em;padding:.45rem 1.5rem;margin-bottom:1.25rem}
+.ev-headline{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.5rem,4.5vw,2.5rem);letter-spacing:.04em;color:#fff;text-align:center;line-height:1.1;margin-bottom:.75rem;max-width:580px}
+.ev-desc{font-size:.8rem;color:#666;text-align:center;font-weight:300;line-height:1.7;max-width:480px;margin-bottom:1.5rem}
+.ev-opts{display:flex;flex-direction:column;gap:.55rem;width:100%;max-width:500px}
+.evob{background:#111;border:1px solid #1E1E1E;padding:.85rem 1.25rem;color:#CCC;font-size:.82rem;cursor:pointer;text-align:left;transition:all .18s}
+.evob:hover{background:#161C30;border-color:#E03535;color:#fff}
+.evob.eg{background:#0A1E0A;border-color:#3A9A3A;color:#7ADF7A}
+.evob.eb{background:#1E0A0A;border-color:#9A3A3A;color:#DF7A7A}
+
+/* PAUSE OVERLAY */
+#pause-ov{position:absolute;inset:0;z-index:45;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(5,8,16,.96)}
+#pause-ov.show{display:flex}
+
+/* END */
+.eB{font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,12vw,6.5rem);color:#E03535;line-height:.9;text-align:center;margin:.5rem 0}
+.est{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#1E1E1E;width:100%;max-width:460px;margin:1.25rem 0}
+.ec{background:#111;padding:1rem;text-align:center}
+.en{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:#E03535;line-height:1}
+.el{font-size:.56rem;color:#444;text-transform:uppercase;letter-spacing:.08em;margin-top:.2rem}
+
+@media(max-width:520px){.opts{grid-template-columns:1fr}.ev-opts{gap:.4rem}body{overflow:auto}.gw{overflow:auto}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/games" class="nb">← Game Hub</a>
+  <button id="pause-btn" onclick="togglePause()">⏸ Pause</button>
+  <a href="/" class="bk">Main Site</a>
+</nav>
+<div class="gw">
+  <div class="bg-grid"></div>
+
+  <!-- INTRO -->
+  <div class="sc on" id="si">
+    <div style="font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:#E03535;margin-bottom:.75rem">AP Gov · Political Survival</div>
+    <h1 class="ST">Approval<br><span>Survival</span></h1>
+    <p class="ssub">Answer policy questions to keep your approval above 0%. Scandals, crises, and debates hit randomly. Powerups appear to help you survive. How long can you last?</p>
+    <div class="ig-row">
+      <div class="ig"><div class="ig-n">50%</div><div class="ig-l">Starting Approval</div></div>
+      <div class="ig"><div class="ig-n">8s</div><div class="ig-l">Per Question</div></div>
+      <div class="ig"><div class="ig-n">0%</div><div class="ig-l">Game Over</div></div>
+    </div>
+    <button class="pbtn" onclick="startGame()">Enter Politics →</button>
+  </div>
+
+  <!-- GAME -->
+  <div id="game-area">
+    <div class="appr-wrap">
+      <div class="appr-top">
+        <div><div class="appr-label">Approval Rating</div><div class="appr-status" id="appr-status">FAVORABLE</div></div>
+        <div class="appr-pct" id="appr-pct">50%</div>
+      </div>
+      <div class="appr-bar-track"><div class="appr-bar-fill" id="appr-bar" style="width:50%;background:#3ACA3A"></div></div>
+      <div class="appr-bottom">
+        <div class="surv-timer" id="surv-time">0s survived</div>
+        <div class="drain-label" id="drain-label">-1% drain active</div>
+      </div>
+    </div>
+    <div class="hud-row">
+      <div class="hv"><div class="hv-n" id="h-qs">0</div><div class="hv-l">Questions</div></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;margin:0 1rem">
+      <div id="q-clock" style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#fff;line-height:1;letter-spacing:.04em;text-shadow:0 0 20px rgba(224,53,53,.6)">8</div>
+      <div class="q-tbar" style="width:100%"><div class="q-tfill" id="q-tfill" style="width:100%"></div></div>
+    </div>
+      <div class="hv"><div class="hv-n" id="h-ev">0</div><div class="hv-l">Events</div></div>
+    </div>
+    <div class="content" id="content">
+      <div class="appr-flash" id="af"></div>
+    </div>
+    <div id="ev-ov">
+      <div class="ev-ticker" id="ev-ticker">⚡ BREAKING NEWS</div>
+      <div class="ev-headline" id="ev-headline"></div>
+      <div class="ev-desc" id="ev-desc"></div>
+      <div class="ev-opts" id="ev-opts"></div>
+    </div>
+    <div id="pause-ov">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:4rem;letter-spacing:.06em;color:#fff;text-align:center;margin-bottom:1rem">PAUSED</div>
+      <div style="font-size:.85rem;color:#555;text-align:center;margin-bottom:2rem">Your constituents are waiting…</div>
+      <button class="pbtn" onclick="togglePause()">Resume Campaign</button>
+    </div>
+  </div>
+
+  <!-- DEAD -->
+  <div class="sc" id="sd">
+    <div style="font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:#E03535;margin-bottom:.4rem">Campaign Ended</div>
+    <h2 style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.04em;color:#fff">VOTED OUT OF OFFICE</h2>
+    <div class="eB" id="d-time">0s</div>
+    <div class="est">
+      <div class="ec"><div class="en" id="d-qs">0</div><div class="el">Questions</div></div>
+      <div class="ec"><div class="en" id="d-ev">0</div><div class="el">Events</div></div>
+      <div class="ec"><div class="en" id="d-best">0s</div><div class="el">Personal Best</div></div>
+    </div>
+    <p id="d-verdict" style="font-size:.8rem;color:#555;max-width:380px;text-align:center;line-height:1.7;margin-bottom:1.2rem"></p>
+    <button class="pbtn" onclick="startGame()">Run Again</button>
+    <a href="/games" class="pbtn ol">Game Hub</a>
+  </div>
+</div>
+
+<script>
+/* ── DATA ── */
+const QUESTIONS=[
+  {cat:"Media & Democracy",q:"50% of Americans get news from social media — and score 23% lower on political knowledge tests. Your policy?",opts:["Mandate media literacy in schools","Regulate social media algorithms","Let platforms self-regulate","Government-run fact-checkers"],fx:[15,10,-18,-22],best:0,exp:"Media literacy education has bipartisan support and addresses the root cause of the problem directly."},
+  {cat:"Media & Democracy",q:"A partisan cable network with 94% one-party viewership is spreading misinformation. Your stance?",opts:["Reinstate Fairness Doctrine","Support bipartisan media commission","Protect all speech, do nothing","Sue the network"],fx:[10,15,-15,-8],best:1,exp:"A bipartisan commission signals leadership without appearing to target free speech directly."},
+  {cat:"Media & Democracy",q:"Social media algorithms are blamed for political polarization. Congress wants your position.",opts:["Strong federal algorithm oversight","Require algorithmic transparency only","Full deregulation","Break up Big Tech"],fx:[10,15,-18,5],best:1,exp:"Algorithmic transparency is the most popular moderate position that avoids the 'censorship' label."},
+  {cat:"Media & Democracy",q:"Facebook's internal research shows their algorithm amplifies divisive content for engagement. Your response?",opts:["Mandate algorithm audits","Fine them for each viral false claim","Do nothing — free market","Nationalize social media"],fx:[15,8,-15,-25],best:0,exp:"Algorithm audits address the root cause and have growing bipartisan support in Congress."},
+  {cat:"Media & Democracy",q:"A study shows filter bubbles cause voters to hold factually incorrect beliefs. Your plan?",opts:["Fund public media alternatives","Regulate recommendation engines","Encourage media diversity voluntarily","Declare misinformation illegal"],fx:[12,10,2,-20],best:0,exp:"Funding strong public media alternatives expands information access without restricting speech."},
+  {cat:"Healthcare",q:"Prescription drug prices hit a record high — insulin costs $350/month in the U.S. vs $30 in Canada.",opts:["Allow Medicare to negotiate prices","Import drugs from Canada","Deregulate the market","Subsidize insurance companies"],fx:[15,10,-20,-15],best:0,exp:"Medicare drug price negotiation has over 80% public support across party lines."},
+  {cat:"Healthcare",q:"A public healthcare option is proposed alongside private insurance. Your vote?",opts:["Full support","Support with cost modifications","Oppose — government overreach","Study it further"],fx:[10,15,-15,-5],best:1,exp:"A modified public option polls highest with swing voters who want choice but worry about costs."},
+  {cat:"Healthcare",q:"Hospital consolidation has reduced competition in 80% of U.S. markets. Prices are up 40%. Your plan?",opts:["Block mergers — antitrust enforcement","Break up existing hospital systems","Subsidize rural hospitals","Deregulate to increase competition"],fx:[15,10,5,-12],best:0,exp:"Antitrust enforcement polls well — voters understand monopoly pricing as unfair to consumers."},
+  {cat:"Economy",q:"Inflation hits 7%. Markets are nervous. What's your anti-inflation plan?",opts:["Trust the Federal Reserve","Emergency spending cuts","Price controls on essentials","Blame the previous administration"],fx:[12,5,3,-25],best:0,exp:"Deferring to the Fed signals economic maturity. Blame politics tanks approval instantly."},
+  {cat:"Economy",q:"The national deficit hits $2 trillion. Your fiscal plan?",opts:["Cut non-defense spending","Raise taxes on incomes over $400k","Invest for economic growth","Ignore it — deficits don't matter"],fx:[5,10,15,-20],best:2,exp:"Investment-based growth messaging polls strongest — voters want solutions, not austerity."},
+  {cat:"Economy",q:"Unemployment hits 6%. Your district is hit hardest. What's your first move?",opts:["Federal infrastructure investment","Corporate tax cuts","Expand job training programs","Raise the minimum wage"],fx:[15,3,10,8],best:0,exp:"Infrastructure investment creates visible local jobs quickly — critical for local approval."},
+  {cat:"Economy",q:"The top 1% pays record low effective tax rates due to loopholes. Your plan?",opts:["Close specific loopholes","Raise capital gains tax rate","Keep rates as-is","Further reduce top rates"],fx:[15,10,-18,-22],best:0,exp:"Closing loopholes polls better than raising rates — it signals fairness without the 'tax hike' label."},
+  {cat:"Foreign Policy",q:"A key NATO ally is threatened militarily by a hostile state. Your response?",opts:["Deploy U.S. troops immediately","Economic sanctions + diplomacy","Diplomatic talks only","Stay out of it"],fx:[5,15,8,-20],best:1,exp:"Sanctions + diplomacy signals strength while limiting the political risk of military action."},
+  {cat:"Foreign Policy",q:"A foreign government hacked U.S. election infrastructure. Your response?",opts:["Cyber counterattack","Diplomatic expulsion + sanctions","Classified investigation only","Call it fake news"],fx:[8,15,5,-30],best:1,exp:"A visible diplomatic response reassures voters of serious action without escalating to conflict."},
+  {cat:"Environment",q:"A corporation illegally dumps chemicals in a river affecting 50,000 people. Your response?",opts:["Maximum fines + criminal prosecution","Negotiate a cleanup deal","Commission an investigation","Blame environmental regulations"],fx:[15,5,10,-25],best:0,exp:"Voters want accountability. Maximum prosecution signals you're firmly on the public's side."},
+  {cat:"Environment",q:"A major hurricane hits. Climate scientists link it to warming. Your climate response?",opts:["Emergency climate legislation","Disaster relief only","Deny climate connection","Investigate fossil fuel companies"],fx:[12,5,-25,10],best:0,exp:"Bold climate action after a disaster is the highest-approval response — voters want leadership."},
+  {cat:"Environment",q:"Oil companies post record $200B profits during an energy crisis. Your response?",opts:["Windfall profit tax","Investigate price gouging","Ask companies to voluntarily cut prices","Defend their right to profit"],fx:[15,12,-5,-18],best:0,exp:"A windfall profit tax during a crisis is extremely popular — it frames the government as protecting the public."},
+  {cat:"Voting & Democracy",q:"New laws in several states reduce early voting hours and polling locations. Your response?",opts:["Push federal voting rights legislation","Let states decide","Support bipartisan review","Stay silent to avoid controversy"],fx:[15,-18,8,-12],best:0,exp:"Protecting voting access has strong support among moderates. Silence signals weakness."},
+  {cat:"Voting & Democracy",q:"Your opponent is openly spreading election misinformation. What do you do?",opts:["Counter publicly with facts","File a defamation lawsuit","Ignore it — don't feed the fire","Match their intensity"],fx:[15,3,5,-15],best:0,exp:"Fact-based public responses poll highest — voters respect candidates who fight back with truth."},
+  {cat:"Education",q:"Student loan debt hits $1.7 trillion. Your policy position?",opts:["Full blanket cancellation","Means-tested relief for lower incomes","No cancellation","Reform future borrowing rates only"],fx:[8,15,-18,5],best:1,exp:"Targeted means-tested relief helps those who need it without angering deficit hawks."},
+  {cat:"Education",q:"Test scores show U.S. students rank 38th globally in math. Your education plan?",opts:["Major federal investment in STEM","Leave education to states","School vouchers for private schools","More standardized testing"],fx:[15,3,-8,-5],best:0,exp:"Federal STEM investment has bipartisan support and signals global competitiveness seriousness."},
+  {cat:"Criminal Justice",q:"Prison recidivism hits 65%. Two-thirds of released inmates return within 3 years. Your plan?",opts:["Harsher sentencing to deter crime","Rehabilitation + job training","Privatize prisons for efficiency","Only increase police funding"],fx:[-10,15,-20,-5],best:1,exp:"Rehabilitation programs have strong evidence and growing bipartisan support in legislatures."},
+  {cat:"Gun Legislation",q:"A bipartisan background check expansion bill is proposed. Your vote?",opts:["Full support","Support with modifications","Oppose — Second Amendment","Demand mental health focus instead"],fx:[12,15,-20,8],best:1,exp:"Modifying the bill shows reasonable compromise. Full opposition tanks approval with suburban voters."},
+  {cat:"Housing",q:"Home prices are up 45% in 3 years. Millennials can't afford homes. Your housing plan?",opts:["Investigate investor price gouging","Build more affordable public housing","Zoning reform to allow more building","Tax credits for first-time buyers"],fx:[15,10,12,8],best:0,exp:"Investigating investor price gouging is the most emotionally resonant — voters want an enemy named."},
+  {cat:"Technology",q:"AI companies want self-regulation. Congress debates oversight. Your stance?",opts:["Strong independent federal oversight","Bipartisan oversight commission","Trust companies to self-regulate","Pause AI development entirely"],fx:[10,15,-18,-5],best:1,exp:"A commission approach signals seriousness without picking a fight with the tech sector."},
+  {cat:"Technology",q:"A major data breach exposes 200M Americans' personal data. Your response?",opts:["Mandatory breach reporting laws","Fine the company $50 per person affected","Tell companies to try harder","Create a federal privacy agency"],fx:[10,8,-15,15],best:3,exp:"A federal privacy agency is the highest-polling response — it shows systemic thinking over one-off fines."},
+  {cat:"Immigration",q:"Border crossings reach record levels. Your immigration reform?",opts:["Expand legal pathways + asylum processing","Increase border enforcement only","Build more physical barriers","Deport all undocumented immigrants"],fx:[15,5,-8,-20],best:0,exp:"Expanding legal pathways polls well because it addresses root causes rather than symptoms."},
+  {cat:"Immigration",q:"Undocumented immigrants who've lived here 20+ years — with U.S. citizen children — face deportation. Your stance?",opts:["Support path to citizenship","Case-by-case review only","Enforce the law as written","Make them register but not deport"],fx:[15,10,-18,5],best:0,exp:"A path to citizenship for long-term residents has 70%+ support in most national polls."},
+  {cat:"National Security",q:"Intelligence agencies discover domestic extremist groups are using encrypted apps to plan violence. Your response?",opts:["Require encryption backdoors","Fund counter-extremism programs","Expand FBI surveillance authority","Do nothing — privacy must be protected"],fx:[-5,15,3,-18],best:1,exp:"Counter-extremism programs are the highest-polling response — they address causes without privacy concerns."},
+  {cat:"National Security",q:"A cyberattack cripples the U.S. power grid for 48 hours. Your response?",opts:["Declare national emergency + investigation","Blame foreign adversaries without evidence","Downplay it to avoid panic","Announce infrastructure hardening plan"],fx:[10,-15,-20,15],best:3,exp:"Announcing an infrastructure hardening plan shows leadership and forward-thinking — voters reward action."},
+];
+
+const EVENTS=[
+  {ticker:"⚡ BREAKING SCANDAL",headline:"LEAKED EMAILS EXPOSE CONTROVERSIAL PAST COMMENTS",desc:"Old social media posts have resurfaced. Every network is running the story. Reporters outside your office.",opts:["Issue sincere public apology","Deny — call it out of context","Full press conference with explanation","Blame opposition for digging"],fx:[-8,-20,5,-22],exp:"A full press conference explanation shows accountability and lets you control the narrative."},
+  {ticker:"📉 ECONOMIC CRISIS",headline:"STOCK MARKET DROPS 800 POINTS IN SINGLE DAY",desc:"Panic is spreading. Your constituents are calling. Media wants your economic plan — now.",opts:["Announce bipartisan emergency plan","Reassure markets — stay the course","Blame the Fed and last administration","Propose immediate tax relief"],fx:[12,5,-20,8],exp:"Bipartisan emergency leadership in a crisis always polls highest. Blame always polls worst."},
+  {ticker:"🐦 VIRAL MOMENT",headline:"YOUR STATEMENT WAS CLIPPED OUT OF CONTEXT — 12M VIEWS",desc:"A 3-second clip from your speech is going viral. It sounds terrible without context.",opts:["Post the full video immediately","Stay quiet — it'll blow over","Issue a correction statement","Go on the attack against editors"],fx:[15,3,8,-18],exp:"Post the full video fast — truth and transparency win in the social media age."},
+  {ticker:"🎙️ EMERGENCY DEBATE",headline:"OPPONENT CHALLENGES YOU TO LIVE PRIME-TIME DEBATE",desc:"A prime-time debate is set for tomorrow. 40M viewers expected. How do you approach it?",opts:["Accept and prepare aggressively","Accept but set strict ground rules","Counter-propose a town hall","Decline — timing is political"],fx:[15,8,5,-15],exp:"Accepting confidently signals strength. Declining always looks like fear, regardless of reason."},
+  {ticker:"💰 LOBBYIST OFFER",headline:"INDUSTRY PAC OFFERS $5M IN ADS — WITH CONDITIONS",desc:"A powerful industry group wants to run $5M in ads supporting you — they want your vote on deregulation.",opts:["Reject the offer publicly","Accept — everyone does it","Accept but don't commit on vote","Request ethics committee review"],fx:[15,-8,-12,5],exp:"Public rejection of lobbyist money is a massive boost — voters are deeply cynical about money in politics."},
+  {ticker:"📰 MEDIA ATTACK",headline:"MAJOR NETWORK RUNS WEEKLONG NEGATIVE COVERAGE",desc:"A prime-time network is running a 7-day negative investigative series questioning your record.",opts:["Request a live interview to respond","Boycott the network entirely","Release your full record proactively","File FCC complaints"],fx:[12,-15,15,-5],exp:"Releasing your full record lets you control the narrative. Running from media always backfires."},
+  {ticker:"🌪️ NATURAL DISASTER",headline:"CATEGORY 4 HURRICANE DEVASTATES YOUR STATE",desc:"50,000 displaced. Infrastructure destroyed. FEMA overwhelmed. Constituents need leadership NOW.",opts:["Fly to the disaster zone immediately","Coordinate federal emergency response first","Hold national press conference for aid","Wait for full damage assessment"],fx:[15,12,8,-20],exp:"Physical presence in disaster zones is politically essential — voters need to see you showing up."},
+  {ticker:"📊 OPPOSITION RESEARCH",headline:"OPPONENT RELEASES DAMAGING VOTING RECORD FROM 10 YEARS AGO",desc:"You voted against a popular bill a decade ago. Reporters are calling. Cameras outside.",opts:["Explain your full reasoning with context","Pivot to current record and proposals","Attack the messenger","Stay silent and let it fade"],fx:[12,8,-15,-12],exp:"Context and explanation poll well — voters forgive old votes when politicians show growth."},
+  {ticker:"🎉 POLLING SURGE",headline:"NEW POLL: YOUR APPROVAL HITS 3-YEAR HIGH",desc:"An unexpected poll shows voters love your recent work. The momentum is real — what do you do with it?",opts:["Announce a major new policy initiative","Hold a victory rally","Stay humble and keep working","Take credit loudly on social media"],fx:[15,12,10,-5],exp:"Announcing bold new policy while riding high in polls maximizes the momentum boost."},
+  {ticker:"🏛️ SUPREME COURT RULING",headline:"SUPREME COURT RULES AGAINST YOUR KEY POLICY",desc:"A 5-4 ruling just struck down your flagship legislation. Voters are watching how you respond.",opts:["Announce appeal + alternative legislation","Respect the ruling gracefully","Attack the court's legitimacy","Call for court packing"],fx:[12,8,-15,-20],exp:"Announcing alternatives shows resilience and forward-thinking. Attacking the court reads as sour grapes."},
+];
+
+/* ── POWERUP DATA ── */
+const POWERUPS=[
+  {id:'spin',label:'🔮 Spin Doctor',desc:'Reveals which answer gives the most approval',cls:'spin'},
+  {id:'rally',label:'📣 Base Rally',desc:'+20% instant approval boost',cls:'rally'},
+  {id:'freeze',label:'❄️ Freeze Poll',desc:'Stops approval drain for 30 seconds',cls:'freeze'},
+];
+
+/* ── STATE ── */
+let G={}, best=0, raf=null, puAvail=[], frozen=false, frozenTimer=0;
+
+function initG(){
+  G={mode:'play',approval:50,score:0,qCount:0,evCount:0,
+     qInterval:8000,qTimeLeft:8000,qStart:0,
+     evTimer:0,evInterval:28000,
+     drainTimer:0,drainInterval:5000,
+     diff:1,answered:false,lastTs:null,paused:false,
+     spinActive:false};
+  puAvail=[...POWERUPS]; // all powerups available
+  frozen=false; frozenTimer=0;
+}
+
+let usedQs=[];
+function getQ(){
+  if(usedQs.length>=QUESTIONS.length) usedQs=[];
+  const avail=QUESTIONS.filter((_,i)=>!usedQs.includes(i));
+  const q=avail[Math.floor(Math.random()*avail.length)];
+  usedQs.push(QUESTIONS.indexOf(q));
+  return q;
+}
+
+/* ── LOOP ── */
+function loop(ts){
+  if(!G.lastTs) G.lastTs=ts;
+  const dt=Math.min(ts-G.lastTs,120); G.lastTs=ts;
+  if(G.mode!=='play'||G.paused){raf=requestAnimationFrame(loop);return;}
+
+  G.score+=dt;
+  document.getElementById('surv-time').textContent=`${Math.floor(G.score/1000)}s survived`;
+
+  // Frozen drain check
+  if(frozen){frozenTimer-=dt;if(frozenTimer<=0){frozen=false;document.getElementById('drain-label').textContent='-1% drain active';}}
+
+  // Passive drain (speeds up after 2 minutes)
+  if(!frozen){
+    G.drainTimer+=dt;
+    const rate=Math.max(3000,5000-Math.floor(G.score/60000)*500);
+    if(G.drainTimer>=rate){G.drainTimer=0;chAppr(-1,'passive');}
+    document.getElementById('drain-label').textContent=`-1% per ${Math.round(rate/1000)}s`;
+  }
+
+  // Question timeout now handled by setInterval in loadQ
+
+  // Events (slower ramp)
+  G.evTimer+=dt;
+  const evRate=Math.max(22000,28000-Math.floor(G.score/90000)*2000);
+  if(G.evTimer>=evRate){G.evTimer=0;triggerEvent();}
+
+  // Powerup availability (give one every 45s if haven't used all)
+  if(Math.floor(G.score/45000)>0&&puAvail.length<POWERUPS.length&&Math.random()<0.001) restorePowerup();
+
+  raf=requestAnimationFrame(loop);
+}
+
+function chAppr(delta,src){
+  G.approval=Math.max(0,Math.min(100,G.approval+delta));
+  updAppr();
+  if(src!=='passive') flashAppr(delta);
+  if(G.approval<=0&&G.mode==='play') setTimeout(gameOver,600);
+}
+
+function updAppr(){
+  const a=G.approval;
+  let col,st;
+  if(a>=65){col='#3ACA3A';st='FAVORABLE';}
+  else if(a>=40){col='#CACA3A';st='COMPETITIVE';}
+  else if(a>=20){col='#CA7A3A';st='STRUGGLING';}
+  else{col='#E03535';st='⚠ CRITICAL';}
+  const bar=document.getElementById('appr-bar');
+  bar.style.width=a+'%'; bar.style.background=col;
+  bar.className='appr-bar-fill'+(a<20?' crit':'');
+  const pEl=document.getElementById('appr-pct');
+  pEl.textContent=Math.round(a)+'%'; pEl.style.color=col;
+  document.getElementById('appr-status').textContent=st;
+  document.getElementById('appr-status').style.color=col;
+}
+
+function flashAppr(delta){
+  const el=document.getElementById('af');
+  el.textContent=(delta>0?'+':'')+delta+'%';
+  el.style.color=delta>0?'#3ACA3A':'#E03535';
+  el.style.opacity='1'; el.style.transition='none';
+  el.style.transform='translate(-50%,-60%) scale(1.3)';
+  requestAnimationFrame(()=>{el.style.transition='all .7s ease';el.style.opacity='0';el.style.transform='translate(-50%,-110%) scale(1)';});
+}
+
+/* ── QUESTIONS ── */
+function loadQ(){
+  G.answered=false; G.qStart=performance.now();
+  const q=getQ();
+
+  // Shuffle options
+  const idxArr=[0,1,2,3];
+  const shuffled=idxArr.sort(()=>Math.random()-.5);
+  const newBestIdx=shuffled.indexOf(q.best);
+  const shuffledOpts=shuffled.map(i=>q.opts[i]);
+  const shuffledFx=shuffled.map(i=>q.fx[i]);
+
+  // Build powerup buttons (show available ones randomly ~40% chance each)
+  const puBtns=puAvail.filter(()=>Math.random()<0.4).slice(0,2);
+  const puHTML=puBtns.length?`<div class="powerup-row">${puBtns.map(p=>`<button class="pu-btn ${p.cls}" onclick="usePowerup('${p.id}',${newBestIdx})" title="${p.desc}">${p.label}</button>`).join('')}</div>`:'';
+
+  document.getElementById('content').innerHTML=`
+  <div class="appr-flash" id="af"></div>
+  <div class="q-card">
+    <div class="q-cat">${q.cat}</div>
+    <div class="q-text">${q.q}</div>
+    <div class="opts" id="opts">
+      ${shuffledOpts.map((o,i)=>`<button class="ob" onclick="answer(${i},${i===newBestIdx?'true':'false'},${shuffledFx[i]},'${q.exp.replace(/'/g,"\\'")}',${newBestIdx})" data-idx="${i}"><span class="ol">${'ABCD'[i]}</span>${o}</button>`).join('')}
+    </div>
+    <div class="feedback" id="fb"></div>
+    ${puHTML}
+  </div>`;
+
+  // Accurate timer bar using reflow trick
+  const tbar=document.getElementById('q-tfill');
+  tbar.style.transition='none';
+  tbar.style.width='100%';
+  tbar.offsetWidth; // force reflow
+  tbar.style.transition='width 8s linear';
+  tbar.style.width='0%';
+  // Digital countdown clock
+  clearInterval(G._clockInt);
+  clearTimeout(G._clockTO);
+  let _cd=8;
+  const _clkEl=document.getElementById('q-clock');
+  if(_clkEl){_clkEl.textContent=8;_clkEl.style.color='#ffffff';}
+  G._clockInt=setInterval(()=>{
+    _cd--;
+    const el=document.getElementById('q-clock');
+    if(el){
+      el.textContent=Math.max(0,_cd);
+      el.style.color=_cd<=2?'#E03535':_cd<=4?'#CA7A3A':'#ffffff';
+      el.style.textShadow=_cd<=2?'0 0 20px rgba(224,53,53,.9)':'0 0 20px rgba(224,53,53,.4)';
+    }
+    if(_cd<=0) clearInterval(G._clockInt);
+  },1000);
+  // ACTUAL timeout call (was missing before)
+  G._clockTO=setTimeout(autoTimeout,8000);
+}
+
+function answer(idx,isBest,delta,exp,bestIdx){
+  if(G.answered) return;
+  G.answered=true;
+  clearInterval(G._clockInt);clearTimeout(G._clockTO);
+  const ce=document.getElementById('q-clock');if(ce){ce.textContent='✓';ce.style.color='#3ACA3A';ce.style.textShadow='0 0 20px rgba(58,202,58,.6)';}
+  G.qCount++; document.getElementById('h-qs').textContent=G.qCount;
+  document.querySelectorAll('.ob').forEach((b,i)=>{b.disabled=true;if(i===bestIdx)b.classList.add('reveal');});
+  const picked=document.querySelector(`[data-idx="${idx}"]`);
+  picked.classList.remove('reveal');
+  picked.classList.add(isBest==='true'||delta>=0?'good':'bad');
+  document.getElementById('q-tfill').style.transition='none';
+  document.getElementById('q-tfill').style.width='0%';
+  const fb=document.getElementById('fb');
+  const won=isBest==='true'||delta>=0;
+  fb.textContent=(won?`✓ ${delta>0?'+'+delta:'0'}% approval. `:`✗ ${delta}% approval. `)+exp;
+  fb.className='feedback '+(won?'good':'bad');
+  chAppr(delta);
+  // Give 2.5 seconds to read feedback
+  setTimeout(loadQ,won?2500:3000);
+}
+
+function autoTimeout(){
+  if(G.answered) return;
+  G.answered=true;
+  clearInterval(G._clockInt);clearTimeout(G._clockTO);
+  const ce2=document.getElementById('q-clock');if(ce2){ce2.textContent='0';ce2.style.color='#E03535';}
+  document.querySelectorAll('.ob').forEach(b=>b.disabled=true);
+  const fb=document.getElementById('fb');
+  if(fb){fb.textContent='⏱ Time\'s up! -15% approval. Answer faster next time!';fb.className='feedback bad';}
+  document.getElementById('q-tfill').style.transition='none';
+  document.getElementById('q-tfill').style.width='0%';
+  chAppr(-15);
+  setTimeout(loadQ,2800);
+}
+
+/* ── POWERUPS ── */
+function usePowerup(id,bestIdx){
+  // Remove from available
+  puAvail=puAvail.filter(p=>p.id!==id);
+  if(id==='spin'){
+    // Highlight best answer
+    document.querySelectorAll('.ob').forEach((b,i)=>{if(i===bestIdx){b.style.boxShadow='0 0 0 2px #CC77EE';b.style.borderColor='#9944AA';}});
+  } else if(id==='rally'){
+    chAppr(20,'rally');
+    G.answered=true;
+    document.querySelectorAll('.ob').forEach(b=>b.disabled=true);
+    const fb=document.getElementById('fb');
+    if(fb){fb.textContent='📣 RALLY! +20% approval boost from your base!';fb.className='feedback good';}
+    document.getElementById('q-tfill').style.width='0%';
+    setTimeout(loadQ,2000);
+  } else if(id==='freeze'){
+    frozen=true; frozenTimer=30000;
+    document.getElementById('drain-label').textContent='❄️ Drain FROZEN for 30s';
+  }
+  // Remove powerup buttons
+  document.querySelectorAll('.pu-btn').forEach(b=>{if(b.onclick&&b.onclick.toString().includes(id))b.remove();});
+}
+
+function restorePowerup(){
+  const all=POWERUPS;
+  const missing=all.find(p=>!puAvail.find(a=>a.id===p.id));
+  if(missing) puAvail.push(missing);
+}
+
+/* ── EVENTS ── */
+function triggerEvent(){
+  if(G.mode!=='play'||document.getElementById('ev-ov').style.display==='flex') return;
+  const ev=EVENTS[Math.floor(Math.random()*EVENTS.length)];
+  document.getElementById('ev-ticker').textContent=ev.ticker;
+  document.getElementById('ev-headline').textContent=ev.headline;
+  document.getElementById('ev-desc').textContent=ev.desc;
+  const opEl=document.getElementById('ev-opts');
+  opEl.innerHTML=ev.opts.map((o,i)=>`<button class="evob" onclick="pickEv(${i},${ev.fx[i]},'${ev.exp.replace(/'/g,"\\'")}',${ev.fx.indexOf(Math.max(...ev.fx))})">${o}</button>`).join('');
+  const ov=document.getElementById('ev-ov');
+  ov.style.display='flex';
+}
+
+function pickEv(idx,delta,exp,bestIdx){
+  document.querySelectorAll('.evob').forEach((b,i)=>{b.disabled=true;if(i===bestIdx)b.classList.add('eg');});
+  document.querySelectorAll('.evob')[idx].className='evob '+(delta>=0?'eg':'eb');
+  G.evCount++; document.getElementById('h-ev').textContent=G.evCount;
+  chAppr(delta);
+  const desc=document.getElementById('ev-desc');
+  desc.textContent=(delta>=0?`✓ +${delta}% approval. `:`✗ ${delta}% approval. `)+exp;
+  desc.style.color=delta>=0?'#AADDAA':'#DDAAAA';
+  // Hold for 2.5s so player can read
+  setTimeout(()=>{
+    document.getElementById('ev-ov').style.display='none';
+    if(G.mode==='play') loadQ();
+  },2800);
+}
+
+/* ── PAUSE ── */
+function togglePause(){
+  G.paused=!G.paused;
+  document.getElementById('pause-ov').className=G.paused?'show':'';
+  document.getElementById('pause-btn').textContent=G.paused?'▶ Resume':'⏸ Pause';
+}
+
+/* ── SCREENS ── */
+function showSc(id){
+  document.querySelectorAll('.sc').forEach(s=>{s.classList.remove('on');s.style.display='none';});
+  document.getElementById('game-area').style.display='none';
+  document.getElementById('pause-btn').style.display='none';
+  if(id==='game'){
+    document.getElementById('game-area').style.display='flex';
+    document.getElementById('pause-btn').style.display='block';
+  } else if(id){const el=document.getElementById(id);el.style.display='flex';requestAnimationFrame(()=>el.classList.add('on'));}
+}
+
+function startGame(){
+  showSc('game');
+  initG(); updAppr(); loadQ();
+  document.getElementById('h-qs').textContent='0';
+  document.getElementById('h-ev').textContent='0';
+  document.getElementById('ev-ov').style.display='none';
+  document.getElementById('pause-ov').className='';
+  G.paused=false;
+  document.getElementById('pause-btn').textContent='⏸ Pause';
+  if(raf) cancelAnimationFrame(raf);
+  G.lastTs=null;
+  raf=requestAnimationFrame(loop);
+}
+
+function gameOver(){
+  G.mode='dead'; cancelAnimationFrame(raf);
+  const secs=Math.floor(G.score/1000);
+  if(secs>best) best=secs;
+  document.getElementById('d-time').textContent=secs+'s';
+  document.getElementById('d-qs').textContent=G.qCount;
+  document.getElementById('d-ev').textContent=G.evCount;
+  document.getElementById('d-best').textContent=best+'s';
+  const v=[[60,'Your political career lasted under a minute. Study your AP Gov notes!'],[120,'Held office for a bit. Scandals and bad policy calls got you.'],[180,'Respectable survival. Pressure eventually caught up.'],[300,'Strong political instincts! You navigated major crises.'],[Infinity,'LEGENDARY. You understand democracy, media, and policy better than most real politicians.']];
+  document.getElementById('d-verdict').textContent=v.find(([t])=>secs<t)[1];
+  showSc('sd');
+}
+
+// keyboard pause
+document.addEventListener('keydown',e=>{if(e.code==='KeyP'&&G.mode==='play')togglePause();});
+</script>
+</body>
+</html>
