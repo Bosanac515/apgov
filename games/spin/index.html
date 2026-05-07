@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spin Detector | AP Gov</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Inter',sans-serif;background:#0D0D0D;color:#F0F0F0;display:flex;flex-direction:column;overflow-x:hidden}
+nav{background:rgba(10,10,10,.97);border-bottom:2px solid #E03535;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:50px;flex-shrink:0}
+.nb{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.15em;color:#E03535;text-decoration:none}
+.back{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:#888;text-decoration:none;border:1px solid #333;padding:.3rem .8rem;transition:all .2s}
+.back:hover{color:#fff;border-color:#E03535}
+.wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:1.5rem 1rem;overflow-y:auto}
+
+.screen{display:none;flex-direction:column;align-items:center;width:100%;max-width:820px;animation:fadeUp .35s ease}
+.screen.active{display:flex}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* INTRO */
+.big-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,9vw,6rem);line-height:.9;letter-spacing:.04em;text-align:center;color:#fff;margin-bottom:.75rem}
+.big-title span{color:#E03535}
+.sub{font-size:.88rem;color:#777;text-align:center;font-weight:300;line-height:1.7;max-width:440px;margin:0 auto 1.75rem}
+.example-row{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#1E1E1E;width:100%;margin-bottom:1.75rem}
+.ex-card{padding:1.25rem 1.5rem}
+.ex-card.biased{background:#1A0808}
+.ex-card.neutral{background:#0A0A0A}
+.ex-tag{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:.5rem;font-weight:600}
+.ex-tag.b{color:#E07070}
+.ex-tag.n{color:#7ACA7A}
+.ex-text{font-size:.82rem;color:#CCC;line-height:1.6;font-weight:500}
+.play-btn{background:#E03535;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.12em;padding:.8rem 3.5rem;border:none;cursor:pointer;transition:all .2s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%)}
+.play-btn:hover{background:#FF4444;transform:scale(1.03)}
+
+/* GAME */
+.hud{display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:1rem}
+.hud-score{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:#E03535;letter-spacing:.08em}
+.hud-count{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:#666;letter-spacing:.08em}
+.prog-row{display:flex;gap:4px;width:100%;margin-bottom:1.25rem}
+.prog-d{flex:1;height:4px;background:#1E1E1E;transition:background .3s}
+.prog-d.c{background:#3A9A3A}.prog-d.w{background:#9A3A3A}.prog-d.cur{background:#E03535;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+.topic-tag{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#E03535;margin-bottom:.75rem;align-self:flex-start}
+.question-label{font-size:.72rem;color:#666;margin-bottom:1rem;font-weight:300}
+.question-label strong{color:#CCC}
+
+.cards-row{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#1E1E1E;width:100%;margin-bottom:1rem}
+.choice-card{background:#111;border:2px solid transparent;padding:1.75rem 1.5rem;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;gap:.75rem;text-align:left;position:relative}
+.choice-card:hover:not(:disabled){background:#161616;border-color:#555}
+.choice-card:disabled{cursor:default}
+.choice-card .card-letter{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#444;line-height:1}
+.choice-card .card-src{font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:#555;margin-bottom:.25rem}
+.choice-card .card-txt{font-size:.9rem;color:#E0E0E0;line-height:1.6;font-weight:500}
+.choice-card.correct-pick{background:#0A1E0A;border-color:#3A9A3A}
+.choice-card.wrong-pick{background:#1E0A0A;border-color:#9A3A3A}
+.choice-card.reveal{background:#0A1E0A;border-color:#3A9A3A;opacity:.7}
+
+.verdict-bar{width:100%;padding:1rem 1.25rem;font-size:.8rem;line-height:1.6;display:none;font-weight:300}
+.verdict-bar.correct{background:#0A1E0A;border-left:3px solid #3A9A3A;color:#AADDAA}
+.verdict-bar.wrong{background:#1E0A0A;border-left:3px solid #9A3A3A;color:#DDAAAA}
+
+/* END */
+.end-grade{font-family:'Bebas Neue',sans-serif;font-size:clamp(6rem,18vw,10rem);line-height:.9;text-align:center;margin:1rem 0}
+.gA{color:#3ACA3A}.gB{color:#7ACA3A}.gC{color:#CACA3A}.gD{color:#CA7A3A}.gF{color:#E03535}
+.end-score{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#888;text-align:center;margin-bottom:.75rem}
+.end-verdict{font-size:.88rem;color:#666;text-align:center;margin-bottom:1.75rem;font-weight:300;line-height:1.7;max-width:380px}
+.end-btns{display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center}
+.replay-btn{background:#E03535;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.1em;padding:.7rem 2.5rem;border:none;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);transition:background .2s}
+.replay-btn:hover{background:#FF4444}
+.hub-btn{background:transparent;color:#888;font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.1em;padding:.7rem 2.5rem;border:1px solid #333;cursor:pointer;text-decoration:none;display:inline-block;transition:all .2s}
+.hub-btn:hover{color:#fff;border-color:#E03535}
+
+@media(max-width:600px){.cards-row,.example-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/games" class="nb">← Game Hub</a>
+  <a href="/" class="back">Main Site</a>
+</nav>
+<div class="wrap">
+
+  <div class="screen active" id="s-intro">
+    <p style="font-size:.65rem;letter-spacing:.28em;text-transform:uppercase;color:#E03535;margin-bottom:.75rem">AP Gov · Media Literacy</p>
+    <h1 class="big-title">Spin<br><span>Detector</span></h1>
+    <p class="sub">Two headlines cover the same story. One is biased. One is neutral. Click the biased one — but watch out, the spin can be subtle.</p>
+    <div class="example-row">
+      <div class="ex-card biased"><div class="ex-tag b">⚠ Biased</div><div class="ex-text">"Radical Climate Activists Demand Destruction of American Energy Independence"</div></div>
+      <div class="ex-card neutral"><div class="ex-tag n">✓ Neutral</div><div class="ex-text">"Climate Protesters Rally Outside Capitol, Calling for Fossil Fuel Restrictions"</div></div>
+    </div>
+    <button class="play-btn" onclick="startGame()">Start Detecting →</button>
+  </div>
+
+  <div class="screen" id="s-game">
+    <div class="hud">
+      <span class="hud-score">Score: <span id="score">0</span></span>
+      <span class="hud-count">Round <span id="rnum">1</span> of 8</span>
+    </div>
+    <div class="prog-row" id="prog-row"></div>
+    <p class="topic-tag" id="topic">Topic</p>
+    <p class="question-label">Which headline is <strong>biased or spun</strong>?</p>
+    <div class="cards-row" id="cards-row"></div>
+    <div class="verdict-bar" id="verdict-bar"></div>
+  </div>
+
+  <div class="screen" id="s-end">
+    <p style="font-size:.65rem;letter-spacing:.28em;text-transform:uppercase;color:#E03535;margin-bottom:.25rem">Results</p>
+    <h2 style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.04em">Spin IQ</h2>
+    <div class="end-grade" id="end-grade">A</div>
+    <div class="end-score" id="end-score">7 / 8 correct</div>
+    <p class="end-verdict" id="end-verdict"></p>
+    <div class="end-btns">
+      <button class="replay-btn" onclick="startGame()">Play Again</button>
+      <a class="hub-btn" href="/games">Game Hub</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const ROUNDS = [
+  {
+    topic:"Immigration Policy",
+    biased:{src:"Conservative Talk Radio",txt:"Radical Open-Border Activists Push to Let Millions of Illegals Flood American Communities"},
+    neutral:{src:"Reuters",txt:"Advocacy Groups Call for Expanded Immigration Pathways at Senate Hearing"},
+    explanation:"'Illegals' and 'flood' are emotionally loaded terms; 'radical' frames advocates as extremists rather than describing their actual position."
+  },
+  {
+    topic:"Climate & Energy",
+    biased:{src:"Environmental Blog",txt:"Big Oil's Criminal Greed Is Cooking the Planet While Corrupt Politicians Do Nothing"},
+    neutral:{src:"Associated Press",txt:"Global Temperatures Hit Record High for Third Straight Year, Scientists Report"},
+    explanation:"'Criminal greed,' 'cooking,' and 'corrupt' are editorial judgments that replace factual reporting with advocacy language."
+  },
+  {
+    topic:"Gun Legislation",
+    biased:{src:"Right-Wing Media",txt:"Democrat Gun Grab Would Strip Law-Abiding Americans of Their Constitutional Rights"},
+    neutral:{src:"NPR",txt:"Senate Advances Background Check Expansion Bill in Bipartisan 65-35 Vote"},
+    explanation:"'Gun grab' is a rhetorical characterization, not a description of the bill. 'Strip' and 'law-abiding' frame the legislation as an attack on citizens."
+  },
+  {
+    topic:"Healthcare Costs",
+    biased:{src:"Progressive Media",txt:"While Americans Die Unable to Afford Insulin, Heartless Pharma CEOs Pocket Billions"},
+    neutral:{src:"Wall Street Journal",txt:"Insulin Prices Remain Among Highest in World Despite Recent Federal Price Caps"},
+    explanation:"'Heartless' and 'while Americans die' are emotional appeals that substitute outrage for factual analysis of pricing policy."
+  },
+  {
+    topic:"Social Media Regulation",
+    biased:{src:"Tech Conservative Blog",txt:"Authoritarian Democrats Move to Censor Free Speech and Silence Conservative Voices Online"},
+    neutral:{src:"New York Times",txt:"Congress Debates Whether Social Media Platforms Should Face New Content Liability Rules"},
+    explanation:"'Authoritarian' and 'silence conservative voices' assume partisan motive and outcome. The neutral version describes what's actually being debated."
+  },
+  {
+    topic:"Election Integrity",
+    biased:{src:"Progressive Media",txt:"GOP's Racist Voter Suppression Machine Is Systematically Stripping the Vote from Minorities"},
+    neutral:{src:"BBC",txt:"Several States Have Enacted New Voter ID Laws Ahead of November Midterms"},
+    explanation:"'Racist' and 'suppression machine' are characterizations, not established facts. The neutral version reports the factual event without editorial judgment."
+  },
+  {
+    topic:"Federal Spending",
+    biased:{src:"Libertarian Media",txt:"Washington Bureaucrats Waste Trillions of Your Dollars on Bloated Government Slush Funds"},
+    neutral:{src:"C-SPAN",txt:"Congressional Budget Office Projects $1.6 Trillion Deficit for Current Fiscal Year"},
+    explanation:"'Bureaucrats,' 'waste,' 'bloated,' and 'slush funds' are loaded terms. The neutral version reports the fiscal data without attributing motive."
+  },
+  {
+    topic:"Police Reform",
+    biased:{src:"Left-Wing Activist Blog",txt:"Militarized Police Terrorize and Murder Black Americans with Zero Accountability"},
+    neutral:{src:"PBS NewsHour",txt:"Study Finds Racial Disparities in Use-of-Force Incidents Across 50 Major U.S. Cities"},
+    explanation:"'Terrorize' and 'murder with zero accountability' are inflammatory characterizations. The neutral version cites a study and describes a documented disparity."
+  },
+];
+
+let shuffled=[],current=0,score=0,correct=0,answered=false;
+function shuffle(a){return[...a].sort(()=>Math.random()-.5)}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none'});
+  const el=document.getElementById(id);el.style.display='flex';requestAnimationFrame(()=>el.classList.add('active'));
+}
+
+function startGame(){
+  shuffled=shuffle(ROUNDS);current=0;score=0;correct=0;answered=false;
+  buildProg();loadRound();show('s-game');
+}
+
+function buildProg(){
+  const r=document.getElementById('prog-row');
+  r.innerHTML=shuffled.map((_,i)=>`<div class="prog-d" id="pd${i}"></div>`).join('');
+}
+
+function loadRound(){
+  answered=false;
+  const rnd=shuffled[current];
+  document.getElementById('rnum').textContent=current+1;
+  document.getElementById('score').textContent=score;
+  document.getElementById('topic').textContent=rnd.topic;
+  document.getElementById(`pd${current}`).classList.add('cur');
+  const vb=document.getElementById('verdict-bar');
+  vb.style.display='none';vb.className='verdict-bar';
+
+  // Randomly assign biased to A or B
+  const flip=Math.random()>.5;
+  const A=flip?rnd.biased:rnd.neutral;
+  const B=flip?rnd.neutral:rnd.biased;
+  const biasedIsA=flip;
+
+  const cr=document.getElementById('cards-row');
+  cr.innerHTML='';
+  [A,B].forEach((card,i)=>{
+    const isA=i===0;
+    const isBiased=biasedIsA?isA:!isA;
+    const btn=document.createElement('button');
+    btn.className='choice-card';
+    btn.dataset.biased=isBiased?'true':'false';
+    btn.innerHTML=`<div class="card-letter">${i===0?'A':'B'}</div><div class="card-src">${card.src}</div><div class="card-txt">${card.txt}</div>`;
+    btn.onclick=()=>choose(btn,isBiased,rnd.explanation);
+    cr.appendChild(btn);
+  });
+}
+
+function choose(btn,isBiased,explanation){
+  if(answered)return;
+  answered=true;
+  const isCorrect=isBiased;
+  if(isCorrect){score+=100;correct++;}
+
+  document.querySelectorAll('.choice-card').forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.biased==='true')b.classList.add(isCorrect?'correct-pick':'reveal');
+  });
+  if(!isCorrect)btn.classList.add('wrong-pick');
+  document.getElementById('pd'+current).classList.remove('cur');
+  document.getElementById('pd'+current).classList.add(isCorrect?'c':'w');
+
+  const vb=document.getElementById('verdict-bar');
+  vb.textContent=(isCorrect?'✓ Correct! ':'✗ Wrong — the other one was biased. ')+explanation;
+  vb.className=`verdict-bar ${isCorrect?'correct':'wrong'}`;
+  document.getElementById('score').textContent=score;
+
+  setTimeout(()=>{
+    vb.style.display='block';
+    setTimeout(()=>{current++;if(current>=shuffled.length)endGame();else loadRound();},isCorrect?1500:2300);
+  },300);
+}
+
+function endGame(){
+  const pct=correct/shuffled.length;
+  let g,gc,v;
+  if(pct>=.88){g='A';gc='gA';v="Exceptional spin radar! You can see through political framing like a seasoned journalist."}
+  else if(pct>=.75){g='B';gc='gB';v="Strong media literacy. You caught most of the spin — a few subtle ones slipped by."}
+  else if(pct>=.62){g='C';gc='gC';v="Average spin detection. Headlines are engineered to feel neutral while being slanted. Keep practicing."}
+  else if(pct>=.5){g='D';gc='gD';v="The spin is working on you. Review Factor 2 — Ideologically Oriented Programming — on the main site."}
+  else{g='F';gc='gF';v="You're fully in the bubble. Study the filter bubble section and come back — you need this skill!"}
+  document.getElementById('end-grade').textContent=g;
+  document.getElementById('end-grade').className='end-grade '+gc;
+  document.getElementById('end-score').textContent=`${correct} / ${shuffled.length} correct · ${score} pts`;
+  document.getElementById('end-verdict').textContent=v;
+  show('s-end');
+}
+</script>
+</body>
+</html>

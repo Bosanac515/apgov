@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Electoral Blitz | AP Gov</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Inter',sans-serif;background:#0D0D0D;color:#F0F0F0;display:flex;flex-direction:column;overflow-x:hidden}
+nav{background:rgba(10,10,10,.97);border-bottom:2px solid #E03535;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:50px;flex-shrink:0}
+.nb{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.15em;color:#E03535;text-decoration:none}
+.back{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:#888;text-decoration:none;border:1px solid #333;padding:.3rem .8rem;transition:all .2s}
+.back:hover{color:#fff;border-color:#E03535}
+
+.wrap{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem;gap:1rem;overflow-y:auto}
+
+.screen{display:none;flex-direction:column;align-items:center;width:100%;max-width:900px;animation:fadeUp .35s ease}
+.screen.active{display:flex}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* INTRO */
+.big-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,10vw,6rem);line-height:.9;letter-spacing:.04em;text-align:center;color:#fff;margin-bottom:.75rem}
+.big-title span{color:#E03535}
+.sub{font-size:.85rem;color:#777;text-align:center;font-weight:300;line-height:1.7;max-width:460px;margin:0 auto 1.5rem}
+.legend{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#1E1E1E;width:100%;max-width:500px;margin-bottom:1.75rem}
+.leg{background:#111;padding:1rem;text-align:center}
+.leg-dot{width:24px;height:24px;border-radius:3px;margin:0 auto .5rem}
+.leg-name{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.06em}
+.leg-tip{font-size:.62rem;color:#555;margin-top:.2rem}
+.play-btn{background:#E03535;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.12em;padding:.8rem 3.5rem;border:none;cursor:pointer;transition:all .2s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%)}
+.play-btn:hover{background:#FF4444;transform:scale(1.03)}
+
+/* GAME HUD */
+.game-hud{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:900px;padding:.5rem 0}
+.ev-bar{flex:1;height:32px;background:#1A1A1A;border:1px solid #222;position:relative;margin:0 1rem;overflow:hidden}
+.ev-fill{height:100%;background:linear-gradient(to right,#1A3E7A,#E03535);transition:width .3s ease;position:relative}
+.ev-mark{position:absolute;right:0;top:0;bottom:0;width:2px;background:#E03535;right:calc(100% - 270/538*100%)} /* 270/538 */
+.ev-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.1em;color:#fff;text-shadow:0 0 6px rgba(0,0,0,.8)}
+.hud-ev{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#E03535;letter-spacing:.08em;white-space:nowrap}
+.hud-time{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#F0F0F0;letter-spacing:.08em;white-space:nowrap}
+.hud-time.danger{color:#E03535;animation:blink .5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* STATE GRID */
+.state-grid{display:grid;grid-template-columns:repeat(11,1fr);gap:2px;width:100%;max-width:900px;padding:0}
+
+.state-btn{background:#1A1A1A;border:1px solid #222;padding:0;cursor:pointer;position:relative;overflow:hidden;transition:border-color .2s;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.state-btn.swing{background:#252520;border-color:#4A4A30}
+.state-btn.safe-d{background:#0A1225;border-color:#1A2A4A;cursor:not-allowed}
+.state-btn.safe-r{background:#250A0A;border-color:#4A1A1A;cursor:not-allowed}
+.state-btn.won{background:#1A3E7A;border-color:#4488CC;cursor:default}
+.state-btn.empty{background:transparent;border-color:transparent;cursor:default;pointer-events:none}
+
+.state-abbr{font-family:'Bebas Neue',sans-serif;font-size:clamp(.55rem,.9vw,.8rem);letter-spacing:.05em;color:#CCC;line-height:1;z-index:1}
+.state-ev{font-size:clamp(.45rem,.7vw,.65rem);color:#777;z-index:1;line-height:1}
+.state-btn.won .state-abbr{color:#fff}
+.state-btn.won .state-ev{color:#88AACC}
+.state-btn.safe-d .state-abbr{color:#5588CC}
+.state-btn.safe-d .state-ev{color:#334466}
+.state-btn.safe-r .state-abbr{color:#CC5555}
+.state-btn.safe-r .state-ev{color:#442222}
+
+/* Progress fill within button */
+.state-progress{position:absolute;bottom:0;left:0;right:0;height:3px;background:#E03535;transform:scaleX(0);transform-origin:left;transition:transform .1s linear}
+
+/* Notification */
+.notif{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#1A3E7A;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.1em;padding:.7rem 2rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:100}
+.notif.show{opacity:1}
+
+/* END */
+.end-score-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,12vw,7rem);color:#E03535;line-height:.9;text-align:center;margin:1rem 0}
+.end-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#1E1E1E;width:100%;margin:1.5rem 0;max-width:500px}
+.es{background:#111;padding:1.25rem;text-align:center}
+.es-n{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#E03535;line-height:1}
+.es-l{font-size:.6rem;color:#555;text-transform:uppercase;letter-spacing:.1em;margin-top:.2rem}
+.end-btns{display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center;margin-top:1rem}
+.replay-btn{background:#E03535;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.1em;padding:.7rem 2.5rem;border:none;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);transition:background .2s}
+.replay-btn:hover{background:#FF4444}
+.hub-btn{background:transparent;color:#888;font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.1em;padding:.7rem 2.5rem;border:1px solid #333;cursor:pointer;text-decoration:none;display:inline-block;transition:all .2s}
+.hub-btn:hover{color:#fff;border-color:#E03535}
+
+@media(max-width:600px){.state-grid{grid-template-columns:repeat(11,1fr);gap:1px}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/games" class="nb">← Game Hub</a>
+  <a href="/" class="back">Main Site</a>
+</nav>
+<div class="wrap">
+
+  <div class="screen active" id="s-intro">
+    <p style="font-size:.65rem;letter-spacing:.28em;text-transform:uppercase;color:#E03535;margin-bottom:.75rem">AP Gov · Electoral College</p>
+    <h1 class="big-title">Electoral<br><span>Blitz</span></h1>
+    <p class="sub">Click and hold swing states to flip them. Race to 270 electoral votes before time runs out. Toss-up states flip fast — safe states fight back.</p>
+    <div class="legend" style="max-width:480px">
+      <div class="leg"><div class="leg-dot" style="background:#252520;border:1px solid #4A4A30"></div><div class="leg-name" style="color:#CCCC77">Swing</div><div class="leg-tip">Click to flip</div></div>
+      <div class="leg"><div class="leg-dot" style="background:#0A1225;border:1px solid #1A2A4A"></div><div class="leg-name" style="color:#5588CC">Safe Dem</div><div class="leg-tip">Hard to flip</div></div>
+      <div class="leg"><div class="leg-dot" style="background:#250A0A;border:1px solid #4A1A1A"></div><div class="leg-name" style="color:#CC5555">Safe Rep</div><div class="leg-tip">Hard to flip</div></div>
+    </div>
+    <button class="play-btn" onclick="startGame()">Build to 270 →</button>
+  </div>
+
+  <div class="screen" id="s-game">
+    <div class="game-hud">
+      <div class="hud-ev" id="ev-count">0 EV</div>
+      <div class="ev-bar">
+        <div class="ev-fill" id="ev-fill" style="width:0%"></div>
+        <div class="ev-label" id="ev-label">0 / 270</div>
+        <div class="ev-mark"></div>
+      </div>
+      <div class="hud-time" id="timer">90s</div>
+    </div>
+    <div class="state-grid" id="state-grid"></div>
+    <div style="font-size:.6rem;color:#333;text-align:center;margin-top:.5rem;letter-spacing:.08em;text-transform:uppercase">Click & hold to flip states · Race to 270 EV</div>
+  </div>
+
+  <div class="screen" id="s-end">
+    <p style="font-size:.65rem;letter-spacing:.28em;text-transform:uppercase;color:#E03535;margin-bottom:.25rem" id="end-eyebrow">Time's Up</p>
+    <h2 style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:.04em" id="end-title">GAME OVER</h2>
+    <div class="end-score-big" id="end-ev">0 EV</div>
+    <div class="end-stats">
+      <div class="es"><div class="es-n" id="stat-states">0</div><div class="es-l">States Won</div></div>
+      <div class="es"><div class="es-n" id="stat-time">0s</div><div class="es-l">Time Left</div></div>
+      <div class="es"><div class="es-n" id="stat-needed">270</div><div class="es-l">Needed</div></div>
+    </div>
+    <p style="font-size:.85rem;color:#666;text-align:center;font-weight:300;line-height:1.7;max-width:400px;margin-bottom:.5rem" id="end-verdict"></p>
+    <div class="end-btns">
+      <button class="replay-btn" onclick="startGame()">Try Again</button>
+      <a class="hub-btn" href="/games">Game Hub</a>
+    </div>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script>
+// Standard election cartogram grid (11 cols x 8 rows)
+// '' = empty cell
+const GRID = [
+  ['AK','','','','','','','','','','ME'],
+  ['','WA','MT','ND','MN','','','VT','NH','',''],
+  ['','OR','ID','SD','WI','MI','','NY','MA','RI',''],
+  ['HI','CA','NV','WY','IA','IL','OH','PA','NJ','CT','DE'],
+  ['','','AZ','CO','MO','IN','WV','VA','MD','DC',''],
+  ['','','NM','KS','AR','KY','TN','NC','SC','',''],
+  ['','','TX','OK','LA','MS','AL','GA','','',''],
+  ['','','','','FL','','','','','',''],
+];
+
+// State data: abbr -> {ev, lean}
+// lean: S=swing, D=safe-d, R=safe-r
+const STATES = {
+  AK:{ev:3,lean:'R'},ME:{ev:4,lean:'S'},WA:{ev:12,lean:'D'},MT:{ev:4,lean:'R'},
+  ND:{ev:3,lean:'R'},MN:{ev:10,lean:'S'},VT:{ev:3,lean:'D'},NH:{ev:4,lean:'S'},
+  OR:{ev:8,lean:'D'},ID:{ev:4,lean:'R'},SD:{ev:3,lean:'R'},WI:{ev:10,lean:'S'},
+  MI:{ev:15,lean:'S'},NY:{ev:28,lean:'D'},MA:{ev:11,lean:'D'},RI:{ev:4,lean:'D'},
+  HI:{ev:4,lean:'D'},CA:{ev:54,lean:'D'},NV:{ev:6,lean:'S'},WY:{ev:3,lean:'R'},
+  IA:{ev:6,lean:'R'},IL:{ev:19,lean:'D'},OH:{ev:17,lean:'R'},PA:{ev:19,lean:'S'},
+  NJ:{ev:14,lean:'D'},CT:{ev:7,lean:'D'},DE:{ev:3,lean:'D'},AZ:{ev:11,lean:'S'},
+  CO:{ev:10,lean:'D'},MO:{ev:10,lean:'R'},IN:{ev:11,lean:'R'},WV:{ev:4,lean:'R'},
+  VA:{ev:13,lean:'D'},MD:{ev:10,lean:'D'},DC:{ev:3,lean:'D'},NM:{ev:5,lean:'D'},
+  KS:{ev:6,lean:'R'},AR:{ev:6,lean:'R'},KY:{ev:8,lean:'R'},TN:{ev:11,lean:'R'},
+  NC:{ev:16,lean:'S'},SC:{ev:9,lean:'R'},TX:{ev:40,lean:'R'},OK:{ev:7,lean:'R'},
+  LA:{ev:8,lean:'R'},MS:{ev:6,lean:'R'},AL:{ev:9,lean:'R'},GA:{ev:16,lean:'S'},
+  FL:{ev:30,lean:'S'},
+};
+
+// Flip time by lean (ms to hold)
+const FLIP_TIME = {S:1200, D:3500, R:3000};
+
+let wonStates={};
+let totalEV=0;
+let timeLeft=90;
+let timerInterval=null;
+let holdTimers={};
+let gameActive=false;
+
+function startGame(){
+  wonStates={};totalEV=0;timeLeft=90;holdTimers={};gameActive=true;
+  buildGrid();
+  updateEV();
+  show('s-game');
+  clearInterval(timerInterval);
+  timerInterval=setInterval(tick,1000);
+}
+
+function tick(){
+  if(!gameActive)return;
+  timeLeft--;
+  const el=document.getElementById('timer');
+  el.textContent=timeLeft+'s';
+  el.className='hud-time'+(timeLeft<=15?' danger':'');
+  if(timeLeft<=0){clearInterval(timerInterval);endGame(false);}
+}
+
+function buildGrid(){
+  const grid=document.getElementById('state-grid');
+  grid.innerHTML='';
+  GRID.forEach(row=>{
+    row.forEach(abbr=>{
+      const btn=document.createElement('button');
+      if(!abbr||!STATES[abbr]){btn.className='state-btn empty';btn.innerHTML='';grid.appendChild(btn);return;}
+      const s=STATES[abbr];
+      btn.className=`state-btn ${s.lean==='S'?'swing':s.lean==='D'?'safe-d':'safe-r'}`;
+      btn.id='btn-'+abbr;
+      btn.innerHTML=`<span class="state-abbr">${abbr}</span><span class="state-ev">${s.ev}</span><div class="state-progress" id="prog-${abbr}"></div>`;
+
+      // Hold to flip
+      btn.addEventListener('mousedown',()=>startHold(abbr));
+      btn.addEventListener('touchstart',e=>{e.preventDefault();startHold(abbr);},{passive:false});
+      btn.addEventListener('mouseup',()=>cancelHold(abbr));
+      btn.addEventListener('mouseleave',()=>cancelHold(abbr));
+      btn.addEventListener('touchend',()=>cancelHold(abbr));
+      grid.appendChild(btn);
+    });
+  });
+}
+
+function startHold(abbr){
+  if(!gameActive||wonStates[abbr])return;
+  const s=STATES[abbr];
+  const dur=FLIP_TIME[s.lean];
+  const prog=document.getElementById('prog-'+abbr);
+  if(prog){prog.style.transition=`transform ${dur}ms linear`;prog.style.transform='scaleX(1)';}
+  holdTimers[abbr]=setTimeout(()=>flipState(abbr),dur);
+}
+
+function cancelHold(abbr){
+  if(holdTimers[abbr]){clearTimeout(holdTimers[abbr]);delete holdTimers[abbr];}
+  const prog=document.getElementById('prog-'+abbr);
+  if(prog){prog.style.transition='transform .2s ease';prog.style.transform='scaleX(0)';}
+}
+
+function flipState(abbr){
+  if(wonStates[abbr])return;
+  wonStates[abbr]=true;
+  const s=STATES[abbr];
+  totalEV+=s.ev;
+  const btn=document.getElementById('btn-'+abbr);
+  if(btn)btn.className='state-btn won';
+  updateEV();
+  showNotif(`+${s.ev} EV — ${abbr} flipped!`);
+  if(totalEV>=270){clearInterval(timerInterval);gameActive=false;setTimeout(()=>endGame(true),400);}
+}
+
+function updateEV(){
+  document.getElementById('ev-count').textContent=totalEV+' EV';
+  const pct=Math.min(100,(totalEV/538)*100);
+  document.getElementById('ev-fill').style.width=pct+'%';
+  document.getElementById('ev-label').textContent=`${totalEV} / 270`;
+}
+
+function showNotif(msg){
+  const n=document.getElementById('notif');
+  n.textContent=msg;n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'),1200);
+}
+
+function endGame(won){
+  gameActive=false;clearInterval(timerInterval);
+  const statesWon=Object.keys(wonStates).length;
+  document.getElementById('end-eyebrow').textContent=won?'Victory!':'Time\'s Up';
+  document.getElementById('end-title').textContent=won?'270+ REACHED!':'GAME OVER';
+  document.getElementById('end-ev').textContent=totalEV+' EV';
+  document.getElementById('stat-states').textContent=statesWon;
+  document.getElementById('stat-time').textContent=timeLeft+'s';
+  document.getElementById('stat-needed').textContent=Math.max(0,270-totalEV);
+  const verdicts=won?[
+    'Dominant victory! You understand the Electoral College cold.',
+    'You won with room to spare. Strong electoral strategy!',
+    'Close, but you crossed 270. The presidency is yours!'
+  ]:[
+    `${totalEV} EV isn't enough — you needed ${270-totalEV} more. Review swing states!`,
+    `So close! Focus on flipping PA, MI, WI, GA, and AZ faster next time.`,
+    `Only ${statesWon} states won. Learn which swing states carry the most electoral weight.`
+  ];
+  document.getElementById('end-verdict').textContent=verdicts[won?Math.floor(Math.random()*3):Math.min(2,Math.floor((270-totalEV)/50))];
+  show('s-end');
+}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none'});
+  const el=document.getElementById(id);el.style.display='flex';requestAnimationFrame(()=>el.classList.add('active'));
+}
+</script>
+</body>
+</html>
